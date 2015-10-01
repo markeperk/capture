@@ -8,7 +8,6 @@ app
   // .run(function($state,$rootScope){
   //   $rootScope.$state = $state;
   // })
-
   .config(function($stateProvider, $urlRouterProvider) {
     $urlRouterProvider.when('', '/');
     $urlRouterProvider.otherwise('/');

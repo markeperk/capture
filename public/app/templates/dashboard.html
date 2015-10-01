@@ -1,5 +1,12 @@
+<div class="container">
+    <input type="file" on-read-file="uploadedHarData($fileContent)" />
+</div>
+<textarea id="myTextArea" cols=50 rows=10 ng-model="harJson"></textarea>
+<button ng-click="pastedHarData(harJson)">Submit</button>
+<button ng-click="clearHarData(harJson)">Clear Data</button>
 
 
-<div>
-	<p>Dashboard Test</p>
+<div class="container">
+	<p>Pasted text object</p>
+	<pre>{{ harData | json }}</pre>
 </div>

@@ -7,9 +7,6 @@ module.exports.pullNetworkData = function(req, res) {
 	harService.pullNetworkData(page).then(function(response) {
 		var data = response;
 		res.json(response);
-
-
-
 	}, 
 	function(err){
 		console.log(3333, err)

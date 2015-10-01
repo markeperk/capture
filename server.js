@@ -6,6 +6,7 @@ var port = 8081;
 
 //Server-Side Controllers
 var harController = require('./api/Controllers/HarController');
+var pastedHarController = require('./api/Controllers/PastedHarController');
 
 //BodyParser
 app.use(bodyParser.json())
@@ -26,6 +27,7 @@ app.use(express.static(__dirname+'/public'));
 
 //Endpoints
 app.get('/network', harController.pullNetworkData)
+app.post('/api/pasted', pastedHarController.create)
 
 
 
