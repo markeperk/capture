@@ -18,7 +18,7 @@
 
         //definitions
         
-        var diameter = 960,  //mobile?
+        var diameter = 600,  //mobile?
             format = d3.format(",d"),
             color = d3.scale.category20c();
 
@@ -26,8 +26,6 @@
             .attr("width", diameter)
             .attr("height", diameter)
             .attr("class", "bubble") 
-          .append("g")
-           .attr("transform", "translate(50, 50)");
 
         var tooltip = d3.select("body")
             .append("div")
@@ -40,32 +38,6 @@
             .style("border-radius", "6px")
             .style("font", "12px sans-serif")
             .text("tooltip");
-        
-        //accessors
-        var sizeAccessors = {
-          time: function(d) { console.log(d.time); return +d.time; },
-          size: function(d) { return +d.response.content.size; }
-        };
-
-        var groupAccessors = {
-          type: function(d) { return getType(d.response.content.mimeType); }
-        };
-
-        var filterAccessors = {
-          all: function(d) { return getType(d.response.content.mimeType); },
-          other: function(d) { return getType(d.response.content.mimeType); },
-          css: function(d) { return getType(d.response.content.mimeType); },
-          script: function(d) { return getType(d.response.content.mimeType); },
-          xhr: function(d) { return getType(d.response.content.mimeType); },
-          font: function(d) { return getType(d.response.content.mimeType); },
-          image: function(d) { return getType(d.response.content.mimeType); }
-        };       
-
-        var tooltipAccessors = {
-          name: function(d) { return getEntryName(d.request.url.toString()); },
-          url: function(d) { return d.request.url.toString(); },
-          size: function(d) { return formatBytes(k.response.content.size, 2); }
-        };
 
         //define pack
         var packing = d3.layout.pack()
@@ -76,58 +48,52 @@
 
         function updateChart() {
 
-          //insert data
-          var newData = (($scope.data || {}).log || {}).entries || [];
-          // console.log('directive data', data);
+          var data = extractBubbleData((($scope.data || {}).log || {}).entries || []);
+          console.log(data);
+          if(data.children.length > 0) {
+            // packing.radius(sizeAccessors.time)
+            // packing.sort(filterAccessors.active)
 
-          //set pack
-          // packing.radius(sizeAccessors.time)
-          // packing.sort(filterAccessors.active)
+            var node = svg.selectAll(".node")
+                  .data(packing.nodes(data)
+                  .filter(function(d) { return !d.children; }));
+            console.log(node);
+            
+            node.exit().transition().duration(0).remove()
+            node.select("text").remove()
 
-          //Select all
-          var node = svg.selectAll(".node")
-                .data(packing.nodes(newData), function(d) { return d.id; });
-                // .filter(function(d) { return !d.children; }))
-          
-          //Exit
-          // node.exit().transition().duration(0).remove()
+            node.enter().append("g")
+                  .classed("node", true)
+                  .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
+                .append("circle")       
+                  .style("fill", function(d) { return color(d.packageName); })
+                  .on("mouseover", function(d) {
+                      tooltip.text(d.className + ": " + format(d.value));
+                      tooltip.style("visibility", "visible");
+                  })
+                  .on("mousemove", function() {
+                      return tooltip.style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");
+                  })
+                  .on("mouseout", function() {return tooltip.style("visibility", "hidden");})
+                  .attr("r", function(d) { return d.r; });
 
-          //Transition
-          // node.transition().duration(500)
-          console.log(node);
-          //Enter
-          node.enter().append("g")
-              .attr("class", "node")
-              .attr("transform", function(d) { console.log(d); return "translate(" + d.x + "," + d.y + ")"; })
-            .append("circle")
-              .attr("r", sizeAccessors.time)
-              .style("fill", function(d) { return color(d.packageName); })
-              .on("mouseover", function(d) {
-                  // tooltip.text(d.className + ": " + format(d.value));
-                  tooltip.text("test");
-                  tooltip.style("visibility", "visible");
-              })
-              .on("mousemove", function() {
-                  return tooltip.style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");
-              })
-              .on("mouseout", function() {return tooltip.style("visibility", "hidden");})
-            .append("text")
-              .attr("dy", ".3em")
-              .style("text-anchor", "middle")
-              .style("pointer-events", "none")
-              // .text(function(d) { return d.className.substring(0, d.r / 3);  });
-              .text(function(d) { return "test";  });
+            node.transition()
+                .duration(1000)
+                .attr("transform", function (d) { return "translate(" + d.x + "," + d.y + ")"; });
 
+            node.select("circle")
+                .transition()
+                .duration(1000)
+                .attr("r", function (d) { return d.r; })
 
-
-
-
-
-
+            node.append("text")
+                .attr("dy", ".3em")
+                .style("text-anchor", "middle")
+                .style("pointer-events", "none")
+                .text(function(d) { return d.className.substring(0, d.r / 3); })
+      
+          } //end of if statement  
         } //end of update function
-
-      // d3.select(self.frameElement).style("height", diameter + "px");
-
       } //end of link
     }; //end of return
   }]) //end of directive
@@ -137,8 +103,30 @@
 
 
 
-
 //functions
+
+
+function extractBubbleData(arr) {
+ var bubbleArrData = [],
+     result = arr.map(function(k) {
+       var bubbleObjData = {}, name = k.request.url.toString();
+       if(name.lastIndexOf('/') === name.length - 1) {
+         var nUrl = name.slice(0, name.length - 1)
+         bubbleObjData.name = (nUrl.substring(nUrl.lastIndexOf('/') + 1, nUrl.length)).trim()
+       } else {
+         bubbleObjData.name = (name.substring(name.lastIndexOf('/') + 1, name.length)).trim()
+       }
+       bubbleObjData.time = moment(k.time).format('SSSS');
+       bubbleObjData.type = getType(k.response.content.mimeType);
+       bubbleObjData.size = k.response.content.size;
+       bubbleObjData.sizelabel = formatBytes(k.response.content.size, 2);
+       bubbleObjData.url = k.request.url.toString();
+       bubbleArrData.push({packageName: bubbleObjData.type, className: bubbleObjData.name, value: bubbleObjData.time});
+     })
+     return {children: bubbleArrData}
+}
+
+
 
 function getType(ct, url) {
     if (ct === undefined) {
@@ -204,6 +192,37 @@ function guid() {
 }
 
 
+
+
+
+
+
+        
+  //accessors
+  var sizeAccessors = {
+    time: function(d) { console.log(d.time); return +d.time; },
+    size: function(d) { return +d.response.content.size; }
+  };
+
+  var groupAccessors = {
+    type: function(d) { return getType(d.response.content.mimeType); }
+  };
+
+  var filterAccessors = {
+    all: function(d) { return getType(d.response.content.mimeType); },
+    other: function(d) { return getType(d.response.content.mimeType); },
+    css: function(d) { return getType(d.response.content.mimeType); },
+    script: function(d) { return getType(d.response.content.mimeType); },
+    xhr: function(d) { return getType(d.response.content.mimeType); },
+    font: function(d) { return getType(d.response.content.mimeType); },
+    image: function(d) { return getType(d.response.content.mimeType); }
+  };       
+
+  var tooltipAccessors = {
+    name: function(d) { return getEntryName(d.request.url.toString()); },
+    url: function(d) { return d.request.url.toString(); },
+    size: function(d) { return formatBytes(k.response.content.size, 2); }
+  };
 
 
 

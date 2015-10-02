@@ -40,6 +40,9 @@ var app = angular.module('capture');
 
 
 
+
+
+
 function validateJSON(harJSON) {
     try {
         var o = JSON.parse(harJSON);
