@@ -9,8 +9,7 @@ var harController = require('./api/Controllers/HarController');
 var pastedHarController = require('./api/Controllers/PastedHarController');
 
 //BodyParser
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({limit: '50mb'}));
+app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
 app.use(bodyParser.json({limit: '50mb'}));
 
 //Static Files

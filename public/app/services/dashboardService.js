@@ -13,7 +13,7 @@ var app = angular.module('capture');
       	url: '/api/pasted', 
       	data: harData
       }).then(function(res) {
-	      console.log('service returned', res.data.log.pages)
+	      console.log('service returned', res.data)
 	      deferred.resolve(res.data);
 	    }).catch(function(res) {
 	      deferred.reject(res);

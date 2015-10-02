@@ -7,9 +7,11 @@
         data: '='
       },
       link: function ($scope, elem, attrs) {
-
+        var count = 0;
         $scope.$watch("data", function() {
           updateChart();
+          count++;
+          console.log(count)
         });
 
         // $scope.$on('capture.dashboard.data.new', updateChart);
@@ -23,7 +25,9 @@
         var svg = d3.select(elem[0]).append("svg")
             .attr("width", diameter)
             .attr("height", diameter)
-            .attr("class", "bubble");
+            .attr("class", "bubble") 
+          .append("g")
+           .attr("transform", "translate(50, 50)");
 
         var tooltip = d3.select("body")
             .append("div")
@@ -39,7 +43,7 @@
         
         //accessors
         var sizeAccessors = {
-          time: function(d) { return +d.time; },
+          time: function(d) { console.log(d.time); return +d.time; },
           size: function(d) { return +d.response.content.size; }
         };
 
@@ -48,15 +52,22 @@
         };
 
         var filterAccessors = {
-          type: function(d) { return getType(d.response.content.mimeType); }
+          all: function(d) { return getType(d.response.content.mimeType); },
+          other: function(d) { return getType(d.response.content.mimeType); },
+          css: function(d) { return getType(d.response.content.mimeType); },
+          script: function(d) { return getType(d.response.content.mimeType); },
+          xhr: function(d) { return getType(d.response.content.mimeType); },
+          font: function(d) { return getType(d.response.content.mimeType); },
+          image: function(d) { return getType(d.response.content.mimeType); }
         };       
 
         var tooltipAccessors = {
           name: function(d) { return getEntryName(d.request.url.toString()); },
           url: function(d) { return d.request.url.toString(); },
-          size: function(d) { return formatBytes(k.response.content.size, 2); },
+          size: function(d) { return formatBytes(k.response.content.size, 2); }
         };
 
+        //define pack
         var packing = d3.layout.pack()
           .sort(null)
           .size([diameter, diameter])
@@ -66,54 +77,56 @@
         function updateChart() {
 
           //insert data
-          var data = (($scope.data || {}).log || {}).entries || [];
-          console.log('directive data', data);
+          var newData = (($scope.data || {}).log || {}).entries || [];
+          // console.log('directive data', data);
 
-          //set packing
-          packing.radius(sizeAccessors.active)
-          packing.sort(filterAccessors.active) //??
+          //set pack
+          // packing.radius(sizeAccessors.time)
+          // packing.sort(filterAccessors.active)
 
           //Select all
           var node = svg.selectAll(".node")
-                .data(packing.nodes(data), function(d) { return d.id; }) //do I construct the array?
+                .data(packing.nodes(newData), function(d) { return d.id; });
                 // .filter(function(d) { return !d.children; }))
           
           //Exit
           // node.exit().transition().duration(0).remove()
 
+          //Transition
+          // node.transition().duration(500)
+          console.log(node);
           //Enter
           node.enter().append("g")
-            .attr("class", "node")
-            .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
-
-          node.append("circle")
-              .attr("r", function(d) { return d.r; }) //where is this coming from
+              .attr("class", "node")
+              .attr("transform", function(d) { console.log(d); return "translate(" + d.x + "," + d.y + ")"; })
+            .append("circle")
+              .attr("r", sizeAccessors.time)
               .style("fill", function(d) { return color(d.packageName); })
               .on("mouseover", function(d) {
-                  tooltip.text(d.className + ": " + format(d.value));
+                  // tooltip.text(d.className + ": " + format(d.value));
+                  tooltip.text("test");
                   tooltip.style("visibility", "visible");
               })
               .on("mousemove", function() {
                   return tooltip.style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");
               })
-              .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
-
-          node.append("text")
-            .attr("dy", ".3em")
-            .style("text-anchor", "middle")
-            .style("pointer-events", "none")
-            .text(tooltipAccessors.name);  //add other tooltip text if you want
-
-
+              .on("mouseout", function() {return tooltip.style("visibility", "hidden");})
+            .append("text")
+              .attr("dy", ".3em")
+              .style("text-anchor", "middle")
+              .style("pointer-events", "none")
+              // .text(function(d) { return d.className.substring(0, d.r / 3);  });
+              .text(function(d) { return "test";  });
 
 
-          //Transition
-          // node.transition().duration(500)
+
+
+
 
 
         } //end of update function
 
-      d3.select(self.frameElement).style("height", diameter + "px");
+      // d3.select(self.frameElement).style("height", diameter + "px");
 
       } //end of link
     }; //end of return
@@ -148,7 +161,7 @@ function getType(ct, url) {
     }
     if (ct.substr(0, 6) === 'image/' ||
         /\.((gif)|(png)|(jpe)|(jpeg)|(jpg)|(tiff))($|\?)/i.test(url)) {
-      return 'img';
+      return 'image';
     }
     if (ct.substr(0, 6) === 'audio/' || ct.substr(0, 6) === 'video/' ||
         /\.((flac)|(ogg)|(opus)|(mp3)|(wav)|(weba))($|\?)/i.test(url) ||
@@ -162,7 +175,6 @@ function getType(ct, url) {
     return 'other';
   }
 
-
 function formatBytes(bytes,decimals) {
    if(bytes == 0) return '0 Byte';
    var k = 1000;
@@ -171,7 +183,6 @@ function formatBytes(bytes,decimals) {
    var i = Math.floor(Math.log(bytes) / Math.log(k));
    return (bytes / Math.pow(k, i)).toPrecision(dm) + ' ' + sizes[i];
 }
-
 
 function getEntryName(string) {
   if(string.lastIndexOf('/') === string.length - 1) {
@@ -182,8 +193,15 @@ function getEntryName(string) {
   }
 }
 
-
-
+function guid() {
+  function s4() {
+    return Math.floor((1 + Math.random()) * 0x10000)
+      .toString(16)
+      .substring(1);
+  }
+  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+    s4() + '-' + s4() + s4() + s4();
+}
 
 
 
