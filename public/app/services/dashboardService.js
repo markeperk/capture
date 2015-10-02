@@ -20,16 +20,6 @@ var app = angular.module('capture');
 	    });
 	    return deferred.promise;
 		  };
-
-		 // this.uploadedHarData = function(){
-		 // 		var harObj = { content: null };
-	  //     $http.get('app/www.viator.com.har').success(function(data) {
-	  //     	//breakdown
-	  //     	console.log('data', data);
-	  //     	harObj.content = data;
-	  //     	return harObj;
-	  //     })	      
-		 //  };
 			  
 	});
 })(); 

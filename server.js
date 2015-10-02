@@ -10,6 +10,8 @@ var pastedHarController = require('./api/Controllers/PastedHarController');
 
 //BodyParser
 app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({limit: '50mb'}));
+app.use(bodyParser.json({limit: '50mb'}));
 
 //Static Files
 app.use(express.static(__dirname+'/public'));

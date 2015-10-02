@@ -1,12 +1,16 @@
 <div class="container">
     <input type="file" on-read-file="uploadedHarData($fileContent)" />
 </div>
-<textarea id="myTextArea" cols=50 rows=10 ng-model="harJson"></textarea>
+<textarea cols=50 ng-model="harJson" placeholder="Paste .har data here"></textarea>
 <button ng-click="pastedHarData(harJson)">Submit</button>
-<button ng-click="clearHarData(harJson)">Clear Data</button>
+<div class="container">{{jsonError}}</div>
 
+<div class="container">
+	<bubble-chart data='data' test='test'></bubble-chart>
+</div>
 
+<!-- 
 <div class="container">
 	<p>Pasted text object</p>
 	<pre>{{ harData | json }}</pre>
-</div>
+</div> -->
