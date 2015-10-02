@@ -44,9 +44,10 @@ function extractBubbleData(arr) {
 				} else {
 					bubbleObjData.name = (name.substring(name.lastIndexOf('/') + 1, name.length)).trim()
 				}
-				bubbleObjData.time = moment(k.time).format('SS');
+				bubbleObjData.time = moment(k.time).format('SSSS');
 				bubbleObjData.type = getType(k.response.content.mimeType);
-				bubbleObjData.size = formatBytes(k.response.content.size, 2);
+				bubbleObjData.size = k.response.content.size;
+				bubbleObjData.sizeLabel = formatBytes(k.response.content.size, 2);
 				bubbleObjData.url = k.request.url.toString();
 				bubbleArrData.push(bubbleObjData);
 			})
