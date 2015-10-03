@@ -7,14 +7,15 @@
         data: '='
       },
       link: function ($scope, elem, attrs) {
-        var count = 0;
-        $scope.$watch("data", function() {
-          updateChart();
-          count++;
-          console.log(count)
-        });
 
-        // $scope.$on('capture.dashboard.data.new', updateChart);
+        var count = 0;
+        $scope.$watch("data", function(n, o) {
+          if(n !== o) {
+            updateChart();
+            count++;
+            console.log(count)
+          }
+        });
 
         //definitions
         
@@ -90,8 +91,7 @@
                 .attr("dy", ".3em")
                 .style("text-anchor", "middle")
                 .style("pointer-events", "none")
-                .text(function(d) { return d.className.substring(0, d.r / 3); })
-      
+                .text(function(d) { return d.className.substring(0, d.r / 3); });
           } //end of if statement  
         } //end of update function
       } //end of link
@@ -105,30 +105,36 @@
 
 //functions
 
-
 function extractBubbleData(arr) {
- var bubbleArrData = [],
-     result = arr.map(function(k) {
-       var bubbleObjData = {}, name = k.request.url.toString();
-       if(name.lastIndexOf('/') === name.length - 1) {
-         var nUrl = name.slice(0, name.length - 1)
-         bubbleObjData.name = (nUrl.substring(nUrl.lastIndexOf('/') + 1, nUrl.length)).trim()
-       } else {
-         bubbleObjData.name = (name.substring(name.lastIndexOf('/') + 1, name.length)).trim()
-       }
-       bubbleObjData.time = moment(k.time).format('SSSS');
-       bubbleObjData.type = getType(k.response.content.mimeType);
-       bubbleObjData.size = k.response.content.size;
-       bubbleObjData.sizelabel = formatBytes(k.response.content.size, 2);
-       bubbleObjData.url = k.request.url.toString();
-       bubbleArrData.push({packageName: bubbleObjData.type, className: bubbleObjData.name, value: bubbleObjData.time});
-     })
-     return {children: bubbleArrData}
+console.log('nativeArr', arr)
+//bubble array data(bad), request network phases(rnp), request-initiated requests(rir)
+ var bad = [], rnp = [], rir = []
+  result = arr.map(function(k) {
+    //all object data(aod)
+    var aod = {}, url = k.request.url.toString();
+    if(url.lastIndexOf('/') === url.length - 1) var name = url.slice(0, url.length - 1);
+    aod.name = (name.substring(name.lastIndexOf('/') + 1, name.length)).trim()
+    // aod.title = k.pages.title; //not on entries
+    aod.url = url;
+    aod.sdt = moment(k.startedDateTime).format('1111');
+    aod.time = moment(k.time).format('SSSS');
+    aod.type = getType(k.response.content.mimeType);
+    aod.size = k.response.content.size;
+    aod.sizelabel = formatBytes(k.response.content.size, 2);
+    aod.blocked = moment(k.timings.blocked).format('SSSS');
+    aod.dns = moment(k.timings.dns).format('SSSS');
+    aod.connect = moment(k.timings.connect).format('SSSS');
+    aod.send = moment(k.timings.wait).format('SSSS');
+    aod.receive = moment(k.timings.receive).format('SSSS');
+    bad.push({packageName: aod.type, className: aod.name, value: aod.time});
+   })
+   console.log(bad)
+   return {children: bad}
 }
 
 
 
-function getType(ct, url) {
+function getType(ct) {
     if (ct === undefined) {
       return 'other';
     }
@@ -181,48 +187,33 @@ function getEntryName(string) {
   }
 }
 
-function guid() {
-  function s4() {
-    return Math.floor((1 + Math.random()) * 0x10000)
-      .toString(16)
-      .substring(1);
-  }
-  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-    s4() + '-' + s4() + s4() + s4();
-}
-
-
-
-
-
-
 
         
   //accessors
-  var sizeAccessors = {
-    time: function(d) { console.log(d.time); return +d.time; },
-    size: function(d) { return +d.response.content.size; }
-  };
+  // var sizeAccessors = {
+  //   time: function(d) { console.log(d.time); return +d.time; },
+  //   size: function(d) { return +d.response.content.size; }
+  // };
 
-  var groupAccessors = {
-    type: function(d) { return getType(d.response.content.mimeType); }
-  };
+  // var groupAccessors = {
+  //   type: function(d) { return getType(d.response.content.mimeType); }
+  // };
 
-  var filterAccessors = {
-    all: function(d) { return getType(d.response.content.mimeType); },
-    other: function(d) { return getType(d.response.content.mimeType); },
-    css: function(d) { return getType(d.response.content.mimeType); },
-    script: function(d) { return getType(d.response.content.mimeType); },
-    xhr: function(d) { return getType(d.response.content.mimeType); },
-    font: function(d) { return getType(d.response.content.mimeType); },
-    image: function(d) { return getType(d.response.content.mimeType); }
-  };       
+  // var filterAccessors = {
+  //   all: function(d) { return getType(d.response.content.mimeType); },
+  //   other: function(d) { return getType(d.response.content.mimeType); },
+  //   css: function(d) { return getType(d.response.content.mimeType); },
+  //   script: function(d) { return getType(d.response.content.mimeType); },
+  //   xhr: function(d) { return getType(d.response.content.mimeType); },
+  //   font: function(d) { return getType(d.response.content.mimeType); },
+  //   image: function(d) { return getType(d.response.content.mimeType); }
+  // };       
 
-  var tooltipAccessors = {
-    name: function(d) { return getEntryName(d.request.url.toString()); },
-    url: function(d) { return d.request.url.toString(); },
-    size: function(d) { return formatBytes(k.response.content.size, 2); }
-  };
+  // var tooltipAccessors = {
+  //   name: function(d) { return getEntryName(d.request.url.toString()); },
+  //   url: function(d) { return d.request.url.toString(); },
+  //   size: function(d) { return formatBytes(k.response.content.size, 2); }
+  // };
 
 
 

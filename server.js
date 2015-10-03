@@ -27,7 +27,8 @@ app.use(express.static(__dirname+'/public'));
 
 
 //Endpoints
-app.get('/network', harController.pullNetworkData)
+// app.get('/api/urlrequest', harController.pullNetworkData)
+app.post('/api/urlrequest', pastedHarController.list)
 app.post('/api/pasted', pastedHarController.create)
 
 

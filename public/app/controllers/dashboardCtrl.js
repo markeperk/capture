@@ -5,14 +5,7 @@ var app = angular.module('capture');
 
 	app.controller('dashboardCtrl', function($scope, dashboardService){
 		
-		//add hardata to local storage?
-		// function notifyDataChange() {
-		// 	return $scope.$broadcast('capture.dashboard.data.new');
-		// }
-
-
 		var harInputOption = 1;
-	  console.log(harInputOption);
 	  $scope.harInputOptions = function() {
       if (harInputOption === 1) {
         $scope.menuInputUrl = true; 
@@ -35,13 +28,19 @@ var app = angular.module('capture');
     }
     $scope.harInputOptions();
 
+		$scope.urlHarRequest = function(url){
+				dashboardService.urlHarRequest(url)
+		      .then(function(data) {
+		      	$scope.jsonError = '';
+		        $scope.data = data; 
+		        $scope.urlRequest = '';
+		    });
+    };
+
 		$scope.uploadedHarData = function(data){
-				console.log("upload controller", JSON.parse(data));
-				$scope.data = '';
 				$scope.jsonError = '';
 				$scope.harJson = '';
 				$scope.data = JSON.parse(data);
-				// notifyDataChange();
     };
  
 	  $scope.pastedHarData = function(data){
@@ -51,12 +50,22 @@ var app = angular.module('capture');
 		      	$scope.jsonError = '';
 		        $scope.data = data; 
 		        $scope.harJson = '';
-		        // notifyDataChange();
 		    });
 	  	} else {
 	  		$scope.jsonError = "Please use a valid .har file";
 	  	}
-	  }  
+	  }
+	  //functions
+		function validateJSON(harJSON) {
+		    try {
+		        var o = JSON.parse(harJSON);
+		        if (o && typeof o === "object" && o !== null) {
+		            return o;
+		        }
+		    }
+		    catch (e) { }
+		    	return false;
+		};
 	});
 })(); 
 
@@ -67,16 +76,7 @@ var app = angular.module('capture');
 
 
 
-function validateJSON(harJSON) {
-    try {
-        var o = JSON.parse(harJSON);
-        if (o && typeof o === "object" && o !== null) {
-            return o;
-        }
-    }
-    catch (e) { }
-    	return false;
-};
+
 
 
 

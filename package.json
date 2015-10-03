@@ -16,6 +16,7 @@
     "phantomjs": "^1.9.17",
     "q": "^1.2.0",
     "request": "latest",
-    "request-promise": "^0.4.2"
+    "request-promise": "^0.4.2",
+    "webpagetest": "^0.3.3"
   }
 }
