@@ -5,11 +5,35 @@ var app = angular.module('capture');
 
 	app.controller('dashboardCtrl', function($scope, dashboardService){
 		
-
 		//add hardata to local storage?
 		// function notifyDataChange() {
 		// 	return $scope.$broadcast('capture.dashboard.data.new');
 		// }
+
+
+		var harInputOption = 1;
+	  console.log(harInputOption);
+	  $scope.harInputOptions = function() {
+      if (harInputOption === 1) {
+        $scope.menuInputUrl = true; 
+        $scope.menuInputUpload = false; 
+        $scope.menuInputCopypaste = false;
+        return harInputOption = 2;
+      };
+      if (harInputOption === 2) {
+       	$scope.menuInputUrl = false; 
+        $scope.menuInputUpload = true; 
+        $scope.menuInputCopypaste = false;
+        return harInputOption = 3;
+      };
+      if (harInputOption === 3) {
+       	$scope.menuInputUrl = false; 
+        $scope.menuInputUpload = false; 
+        $scope.menuInputCopypaste = true;
+        return harInputOption = 1;
+      };
+    }
+    $scope.harInputOptions();
 
 		$scope.uploadedHarData = function(data){
 				console.log("upload controller", JSON.parse(data));

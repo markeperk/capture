@@ -1,16 +1,57 @@
-<div class="container">
-    <input type="file" on-read-file="uploadedHarData($fileContent)" />
+<div class="topbar"></div>
+<div class="menubar">
+		<div class="menu">
+				<div class="menu-left">
+					<div class="logo"></div>
+				</div>
+				<div class="menu-right">
+					<div class="menu-input-holder">
+						<div class="menu-input">
+							<!-- 	Input URL -->
+							<div class="menu-input-type" ng-show="menuInputUrl">
+								<form>
+									<div class="demo-request input-group">
+										<input type="text" class="form-control" placeholder="Enter URL for .HAR Data" name="url" />
+										<span class="input-group-btn">
+											<button class="btn" type="submit">ANALYZE</button>
+										</span>
+									</div>
+								</form>
+							</div>
+							<!-- File Uploader -->
+							<div class="menu-input-type" ng-show="menuInputUpload">
+								<label class="uploader">
+									<input type="file" on-read-file="uploadedHarData($fileContent)" />
+									<i></i><span class="btn">Upload .Har File</span>
+								</label>
+							</div>
+
+							<!-- Copy/ Paste -->
+							<div class="menu-input-copypaste" ng-show="menuInputCopypaste">
+								<form class="textbox">
+									<textarea auto-focus id="textfocus" class="form-control" rows="1" ng-model="harJson" placeholder="Paste .HAR Data"></textarea>
+									<span class="input-group-btn textbtn">
+										<button auto-focus id="btnfocus" class="btn" type="submit" ng-click="pastedHarData(harJson)">ANALYZE</button>
+									</span>
+								</form>
+							</div>
+
+						</div>
+						<div class="menu-selector">
+							<span class="glyphicon glyphicon-menu-hamburger" ng-click="harInputOptions()"style="color: #e8ca14; font-size:26px;"></span>
+						</div>
+					</div>
+				</div>
+			</ul>
+		</div>
+	</div>
 </div>
-<textarea cols=50 ng-model="harJson" placeholder="Paste .har data here"></textarea>
-<button ng-click="pastedHarData(harJson)">Submit</button>
+
+
+
+
 <div class="container">{{jsonError}}</div>
 
 <div class="container">
-	<bubble-chart data='data' test='test'></bubble-chart>
+	<bubble-chart data='data'></bubble-chart>
 </div>
-
-<!-- 
-<div class="container">
-	<p>Pasted text object</p>
-	<pre>{{ harData | json }}</pre>
-</div> -->
