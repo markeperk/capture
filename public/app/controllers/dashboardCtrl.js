@@ -29,8 +29,13 @@ var app = angular.module('capture');
     $scope.harInputOptions();
 
 		$scope.urlHarRequest = function(url){
+				var url = addhttp(url);
+				$scope.url = "Please Wait. Retrieving Data... " + url;
+				$scope.loadHar = !$scope.loadHar;
 				dashboardService.urlHarRequest(url)
 		      .then(function(data) {
+		      	$scope.url = url + ".har";
+		      	$scope.loadHar = !$scope.loadHar;
 		      	$scope.jsonError = '';
 		        $scope.data = data; 
 		        $scope.urlRequest = '';
@@ -56,15 +61,20 @@ var app = angular.module('capture');
 	  	}
 	  }
 	  //functions
-		function validateJSON(harJSON) {
-		    try {
-		        var o = JSON.parse(harJSON);
-		        if (o && typeof o === "object" && o !== null) {
-		            return o;
-		        }
-		    }
-		    catch (e) { }
-		    	return false;
+		function validateJSON(harJson) {
+	    try {
+        var har = JSON.parse(harJson);
+        if (har && typeof har === "object" && har !== null) 
+        	return har;
+	    }
+	    catch (e) { }
+	    	return false;
+		};
+		function addhttp(url) {
+			var url = url.trim();
+		 	if (!url.match(/^[a-zA-Z]+:\/\//) && url.search("www.") === -1) url = 'http://www.' + url;
+		 	if (!url.match(/^[a-zA-Z]+:\/\//)) url = 'http://' + url;
+		 	return url;
 		};
 	});
 })(); 

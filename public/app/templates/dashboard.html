@@ -6,6 +6,7 @@
 		</div>
 		<div class="menu-right">
 			<div class="menu-input-holder">
+
 				<div class="menu-input">
 					<!-- 	Input URL -->
 					<div class="menu-input-type" ng-show="menuInputUrl">
@@ -35,8 +36,11 @@
 						</form>
 					</div>
 				</div>
-				<div class="menu-selector">
+				<div class="menu-selector" ng-show="!loadHar">
 					<span class="glyphicon glyphicon-menu-hamburger" ng-click="harInputOptions()"style="color: #e8ca14; font-size:26px;"></span>
+				</div>
+				<div class="loadinggif" ng-show="loadHar">
+					<img src="../../assets/images/search-load.gif" height="29" width="29" />
 				</div>
 			</div>
 		</div>
@@ -44,10 +48,9 @@
 </div>
 
 
-
-
-<div class="container">{{jsonError}}</div>
+<div class="container">{{jsonError}}{{url}}</div>
 
 <div class="container">
+
 	<bubble-chart data='data'></bubble-chart>
 </div>

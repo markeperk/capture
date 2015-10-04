@@ -5,7 +5,9 @@ var bodyParser = require('body-parser');
 var port = 8081;
 
 //Server-Side Controllers
-var harController = require('./api/Controllers/HarController');
+var urlHarCntrl = require('./api/Controllers/UrlHarCntrl');
+
+var urlHarController = require('./api/Controllers/UrlHarController');
 var pastedHarController = require('./api/Controllers/PastedHarController');
 
 //BodyParser
@@ -28,7 +30,7 @@ app.use(express.static(__dirname+'/public'));
 
 //Endpoints
 // app.get('/api/urlrequest', harController.pullNetworkData)
-app.post('/api/urlrequest', pastedHarController.list)
+app.post('/api/urlrequest', urlHarCntrl.buildHarFile)
 app.post('/api/pasted', pastedHarController.create)
 
 
