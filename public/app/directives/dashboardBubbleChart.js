@@ -108,12 +108,10 @@ function extractBubbleData(arr) {
 //bubble array data(bad), request network phases(rnp), request-initiated requests(rir)
  var bad = [], rnp = [], rir = []
   result = arr.map(function(k) {
-    console.log("time", k.time)
     //all object data(aod)
     var aod = {}, url = k.request.url.toString();
     if(url.lastIndexOf('/') === url.length - 1) url = url.slice(0, url.length - 1);
     aod.name = (url.substring(url.lastIndexOf('/') + 1, url.length)).trim()
-    // aod.title = k.pages.title; //not on entries
     aod.url = url;
     aod.sdt = moment(k.startedDateTime).format('1111');
     aod.time = moment(k.time).valueOf();

@@ -22,7 +22,7 @@
 					<!-- File Uploader -->
 					<div class="menu-input-type" ng-show="menuInputUpload">
 						<label class="uploader">
-							<input type="file" on-read-file="uploadedHarData($fileContent)" />
+							<input type="file" id="uploadHar" on-read-file="uploadedHarData($fileContent)" />
 							<i></i><span class="btn">Upload .Har File</span>
 						</label>
 					</div>
@@ -47,8 +47,7 @@
 	</div>
 </div>
 
-
-<div class="container">{{jsonError}}{{url}}</div>
+<div class="container">{{url}}</div>
 
 <div class="container">
 

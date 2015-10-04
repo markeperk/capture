@@ -43,21 +43,29 @@ var app = angular.module('capture');
     };
 
 		$scope.uploadedHarData = function(data){
-				$scope.jsonError = '';
+				$scope.url = removehttp(document.getElementById("uploadHar").value);
 				$scope.harJson = '';
 				$scope.data = JSON.parse(data);
     };
  
 	  $scope.pastedHarData = function(data){
 	  	if(validateJSON(data)) {
-		    dashboardService.pastedHarData(JSON.parse(data))
+	  		var data = JSON.parse(data)
+	  		console.log(data.log.pages.length)
+				if(data.log.pages.length === 0) { 
+					$scope.url = "unnamed-data.har"
+				} else {
+					$scope.url = removehttp(data.log.pages[0].title) + ".har";
+				}
+		    dashboardService.pastedHarData(data)
 		      .then(function(data) {
-		      	$scope.jsonError = '';
 		        $scope.data = data; 
 		        $scope.harJson = '';
 		    });
 	  	} else {
-	  		$scope.jsonError = "Please use a valid .har file";
+	  		$scope.url = "";
+	  		$scope.data = "";
+	  		$scope.url = "Please use valid .har data";
 	  	}
 	  }
 	  //functions
@@ -76,12 +84,18 @@ var app = angular.module('capture');
 		 	if (!url.match(/^[a-zA-Z]+:\/\//)) url = 'http://' + url;
 		 	return url;
 		};
+		var a = 0
+		
 		function removehttp(url) {
 			var url = url.trim();
+			if (url.lastIndexOf('/') === url.length - 1) url = url.slice(0, url.length - 1);
 		 	if (url.search("https://www.") !== -1) url = url.substring(12, url.length);
 		 	if (url.search("http://www.") !== -1) url = url.substring(11, url.length);
 		 	if (url.search("https://") !== -1) url = url.substring(8, url.length);
 		 	if (url.search("http://") !== -1) url = url.substring(7, url.length);
+		 	if (url.lastIndexOf(".har") !== -1) url = url.substring(url.indexOf("www.") + 4, url.length);
+		 	if (url.indexOf("fakepath") !== -1) url = url.substring(url.indexOf("fakepath") + 9, url.length);
+		 	console.log(a)
 		 	return url;
 		};
 	});
