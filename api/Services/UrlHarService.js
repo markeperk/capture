@@ -1,5 +1,5 @@
 var q = require('q');
-var phantom = require('phantom');
+// var phantom = require('phantom');
 
 module.exports.buildHarFile = function(address) {
 	var address = address;

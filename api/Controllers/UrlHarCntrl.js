@@ -1,5 +1,9 @@
 var q = require('q');
 var phantom = require('phantom');
+// var phantom = require('phantomjs');
+// var phantom = require('node-phantom');
+
+
 
 module.exports.buildHarFile = function(req, res) {
 	var address = req.body.url;
@@ -35,7 +39,8 @@ module.exports.buildHarFile = function(req, res) {
           return;
 			}
       entries.push({
-        startedDateTime: request.time.toISOString(),
+        // startedDateTime: request.time.toISOString(),
+        startedDateTime: request.time,
         time: endReply.time - request.time,
         request: {
           method: request.method,
@@ -79,11 +84,12 @@ module.exports.buildHarFile = function(req, res) {
         version: '1.2',
         creator: {
           name: "PhantomJS",
-          version: phantom.version.major + '.' + phantom.version.minor +
-              '.' + phantom.version.patch
+          // version: phantom.version.major + '.' + phantom.version.minor + '.' + phantom.version.patch
+          version: "phantom"
         },
         pages: [{
-          startedDateTime: startTime.toISOString(),
+          // startedDateTime: startTime.toISOString(),
+          startedDateTime: startTime,
           id: address,
           title: title,
           pageTimings: {
@@ -100,27 +106,26 @@ module.exports.buildHarFile = function(req, res) {
     ph.createPage(function (page) {
     	page.address = address;
 	    page.resources = [];
-      console.log("made it here")
-	    page.onLoadStarted = function () {
-	      page.startTime = new Date();
-	    };  
-	    page.set("onResourceRequested", function (req) {
+      page.set("onLoadStarted", function (req) {
+        page.startTime = new Date();
+      });  
+      page.set("onResourceRequested", function (req) {
+        // console.log('requested: ' + JSON.stringify(req, undefined, 4));
         page.resources[req.id] = {
           request: req,
           startReply: null,
           endReply: null
         };
-        console.log('requested: ' + JSON.stringify(req, undefined, 4));
-	    });
-	    page.set("onResourceReceived", function (res) {
+      });
+      page.set("onResourceReceived", function (res) {
         if (res.stage === 'start') {
           page.resources[res.id].startReply = res;
         }
         if (res.stage === 'end') {
           page.resources[res.id].endReply = res;
         }
-        console.log('received: ' + JSON.stringify(res, undefined, 4));
-	    });
+        // console.log('received: ' + JSON.stringify(res, undefined, 4));
+      });
 	    page.open(page.address, function (status) {
         var har;
         if (status !== 'success') {
@@ -131,13 +136,40 @@ module.exports.buildHarFile = function(req, res) {
           page.title = page.evaluate(function () {
               return document.title;
           });
-          harFile.push(createHAR(page.address, page.title, page.startTime, page.resources));
-          // console.log(JSON.stringify(har, undefined, 4));
+          harFile.push(page);
+          // harFile.push(createHAR(page.address, page.title, page.startTime, page.endTime, page.resources));
           ph.exit();
         }
+        // console.log('harfile', harFile);
+        return res.status(200).send(harFile);
     	}); //end of page.open
-	  }); //end of createpage()
-    console.log(JSON.stringify(harFile));
+	  }); //end of createpage()  
   })
-  return res.status(200).send(JSON.stringify(harFile));
 } //End of module
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

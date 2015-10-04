@@ -58,7 +58,6 @@
             var node = svg.selectAll(".node")
                   .data(packing.nodes(data)
                   .filter(function(d) { return !d.children; }));
-            console.log(node);
             
             node.exit().transition().duration(0).remove()
             node.select("text").remove()
@@ -106,18 +105,18 @@
 //functions
 
 function extractBubbleData(arr) {
-console.log('nativeArr', arr)
 //bubble array data(bad), request network phases(rnp), request-initiated requests(rir)
  var bad = [], rnp = [], rir = []
   result = arr.map(function(k) {
+    console.log("time", k.time)
     //all object data(aod)
     var aod = {}, url = k.request.url.toString();
-    if(url.lastIndexOf('/') === url.length - 1) var name = url.slice(0, url.length - 1);
-    aod.name = (name.substring(name.lastIndexOf('/') + 1, name.length)).trim()
+    if(url.lastIndexOf('/') === url.length - 1) url = url.slice(0, url.length - 1);
+    aod.name = (url.substring(url.lastIndexOf('/') + 1, url.length)).trim()
     // aod.title = k.pages.title; //not on entries
     aod.url = url;
     aod.sdt = moment(k.startedDateTime).format('1111');
-    aod.time = moment(k.time).format('SSSS');
+    aod.time = moment(k.time).valueOf();
     aod.type = getType(k.response.content.mimeType);
     aod.size = k.response.content.size;
     aod.sizelabel = formatBytes(k.response.content.size, 2);
@@ -134,8 +133,8 @@ console.log('nativeArr', arr)
 
 
 
-function getType(ct) {
-    if (ct === undefined) {
+function getType(ct, url) {
+    if (!ct || ct === undefined) {
       return 'other';
     }
     ct = ct.toLowerCase();

@@ -30,11 +30,11 @@ var app = angular.module('capture');
 
 		$scope.urlHarRequest = function(url){
 				var url = addhttp(url);
-				$scope.url = "Please Wait. Retrieving Data... " + url;
+				$scope.url = "Retrieving Data for " + url;
 				$scope.loadHar = !$scope.loadHar;
 				dashboardService.urlHarRequest(url)
 		      .then(function(data) {
-		      	$scope.url = url + ".har";
+		      	$scope.url = removehttp(url) + ".har";
 		      	$scope.loadHar = !$scope.loadHar;
 		      	$scope.jsonError = '';
 		        $scope.data = data; 
@@ -74,6 +74,14 @@ var app = angular.module('capture');
 			var url = url.trim();
 		 	if (!url.match(/^[a-zA-Z]+:\/\//) && url.search("www.") === -1) url = 'http://www.' + url;
 		 	if (!url.match(/^[a-zA-Z]+:\/\//)) url = 'http://' + url;
+		 	return url;
+		};
+		function removehttp(url) {
+			var url = url.trim();
+		 	if (url.search("https://www.") !== -1) url = url.substring(12, url.length);
+		 	if (url.search("http://www.") !== -1) url = url.substring(11, url.length);
+		 	if (url.search("https://") !== -1) url = url.substring(8, url.length);
+		 	if (url.search("http://") !== -1) url = url.substring(7, url.length);
 		 	return url;
 		};
 	});
