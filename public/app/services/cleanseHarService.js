@@ -3,139 +3,182 @@
 
 var app = angular.module('capture');
 
-	app.service('cleanseHarService', function(){
+	app.service('cleanseHarService', function($q){
 
 		this.cleanseHarData = function(harData){
-     console.log(harData, harData.packageName, harData.value, harData.className);
-     return extractData(harData);
+     var deferred = $q.defer()
+      harData = extractData(harData)
+     deferred.resolve(harData);
+     return deferred.promise;
     };
 
     function extractData(harData) {
       var packageName = harData.packageName,
-          className = harData.packageName,
+          className = harData.className,
           value = harData.value,
-          entries = harData.log.entries
+          entries = harData.log.entries,
+          name = !harData.log.pages ? '' : harData.log.pages[0].title,
+          date = !harData.log.pages ? '' : harData.log.pages[0].startedDateTime;
       
-      var childrenArr = [];
+      var globalArr = [], childrenArr = [], csTotalSize = 0, csTotalTime = 0, glTotalTime = 0, glTotalSize = 0, glTotalCookies = 0, csTotalCookies = 0, csTotalSend = 0, csTotalReceive = 0, csTotalWait = 0, csNumOfRequests = 0;
+      var typeTable = {},
+        result = entries.map(function(d) {
+          //flatten each child (ch)
+          var ch = {};
+            //packageName
+            ch.type = getType(d.response.content.mimeType);
+            //className
+            ch.name = getEntryName(d.request.url.toString())
+            ch.contentSize = formatBytes(d.response.content.size, 2);
+            //value
+            ch.time = +d.time > 0 ? moment(d.time).valueOf() : 0;
+            ch.rawContentSize = +d.response.content.size; //content-size
+            ch.entrySize = getSize(d.response.status, d.response.headersSize, d.response.bodySize); //total entry size
+            //request
+            ch.method = d.request.method;
+            ch.url = d.request.url;
+            //response 
+            ch.send = getSend(d.timings);
+            ch.receive = getReceive(d.timings);
+            ch.wait = getWait(d.timings);
+            //other timings
+            ch.startedTime = new Date(d.startedDateTime).getTime();
+            ch.latency = getLatency(d.time, d.timings.receive);
+            ch.endTime = getEndTime(d.startedDateTime, d.time);
+            // ch.blocked = d.timings.blocked && d.timings.blocked !== -1 ? +d.timings.blocked : 0;
+            // ch.dns = d.timings.dns && d.timings.dns !== -1 ? +d.timings.dns : 0;
+            // ch.connect = d.timings.connect && d.timings.connect !== -1 ? +d.timings.connect :0;
+            // ch.ssl = d.timings.ssl && d.timings.ssl !== -1 ? +d.timings.ssl :0;
+            //other
+            ch.reqHeadersCount = +(d.request.headers.length || 0);
+            ch.resHeadersCount = +(d.response.headers.length || 0);
+            // ch.nonExpiringCookies = getNonExpiringCookies(d.request.cookies, d.response.cookies);
+            ch.cookies = +(d.request.cookies.length || 0) + +(d.response.cookies.length || 0);
+          
+          //count the content-type of each child
+          if(!typeTable[ch.type]) {
+            typeTable[ch.type] = 1;
+          } else {
+            typeTable[ch.type]++;
+          }
+          //compute global stats
+          glTotalSize = glTotalSize + Number(ch.entrySize);
+          glTotalTime = glTotalTime + Number(ch.time);
+          glTotalCookies = glTotalCookies + Number(ch.cookies);
+
+          //create global array
+          globalArr.push(ch) 
+
+          //create child object
+          var childrenObject = {
+            packageName: ch.type,
+            className: ch.name,
+            classNameCs: ch.contentSize,
+            classNameCt: ch.type,
+            value: ch.time,
+            valueRcs: ch.rawContentSize,
+            valueEs: ch.entrySize
+          }
+          if (packageName === "all" || packageName === ch.type) {
+            //compute chilren stats
+            csTotalSize = csTotalSize + Number(ch.entrySize);
+            csTotalTime = csTotalTime + Number(ch.time);
+            csTotalCookies = csTotalCookies + Number(ch.cookies);
+            csTotalSend = csTotalSend + Number(ch.send);
+            csTotalReceive = csTotalReceive + Number(ch.receive);
+            csTotalWait = csTotalWait + Number(ch.wait);
+
+            if (ch.type === "script" || ch.type === "xhr") {
+              csNumOfRequests++;
+            };
+            //create children array
+            childrenArr.push(childrenObject)
+          } //end of child if
+      }) //end of entry map
+
       var global = {
+        name: name,
+        date: moment(date).format("YYYY-MM-DD HH:mm Z"),
+        requestedPackageName: packageName,
+        requestedClassName: className,
+        requestedValue: value,
+        global: globalArr,
         children: childrenArr,
-        childrenStats: childrenStats, //fix this
-        currentPackageName: packageName,
-        currentClassName: className,
-        currentValue: value
-      }
-
-      global.name = 
-      global.date = 
-      global.stats = {
-        totalsize:
-        totaltime:
-        avgsize:
-        avgtime:
-        totalrequests:
-        requestsbyothers:
-        nonexpiredheaders:
-        totalcookies:
-      }
-
-      var childrenStats = new PackageStats(packageName); //place selection stats here
-      var result = harData.entries.map(function(d) {
-      //packageName: 
-        //filter by: all or content type table
-
-    
-        //group stats: avg sent, avg wait, avg download
-        //group stats: group total load time, group total size
-        //group stats: percentage of total time and total size
-
-        //top 5 worst offenders (if 5)
-          //type, name, size, total load time, 
-          //top 5 group total size, group total load time, sent, wait, download
-          //top 5 group avg size, avg load time, sent, wait, download
-          //% of total
-
-        var PackageStats = function(packageName) {
-          this.totalTime = 
-          this.totalSize = 
-          this.percGlobalTime = 
-          this.percGlobalSize = 
-          this.avgTime = 
-          this.avgSize = 
-          this.avgSent = 
-          this.avgWait = 
-          this.avgDownload = 
+        globalStats: {
+          totalSize: formatBytes(glTotalSize, 2),
+          totalTime: formatTime(glTotalTime),
+          avgReqSize: formatBytes(glTotalSize / globalArr.length, 2),
+          avgReqTime: formatTime(glTotalTime / globalArr.length),
+          totalCookies: glTotalCookies,
+          numOfRequests: entries.length,
+          numRequestsByOthers: (typeTable.script || 0) + (typeTable.xhr || 0),
+          numOfDocuments: +typeTable.document || 0,
+          numOfScripts: +typeTable.script || 0,
+          numOfXhr: +typeTable.xhr || 0,
+          numOfCss: +typeTable.css || 0,
+          numOfFont: +typeTable.font || 0,
+          numOfImages: +typeTable.image || 0,
+          numOfOther: +typeTable.other || 0,
+          // nonExpiredHeaders:
+        },
+        childrenStats: {
+          packageName: packageName,
+          totalSize: formatBytes(csTotalSize,2),
+          totalTime: formatTime(csTotalTime),
+          avgReqSize: formatBytes(csTotalSize / childrenArr.length, 2),
+          avgReqTime: formatTime(csTotalTime / childrenArr.length),
+          percOfGlobalSize: ((csTotalSize / glTotalSize).toFixed(2) * 100) + "%",
+          percOfGlobalTime: ((csTotalTime / glTotalTime).toFixed(2) * 100) + "%",
+          totalCookies: csTotalCookies,
+          numOfRequests: childrenArr.length,
+          numRequestsByOthers: csNumOfRequests,
+          avgSend: csTotalSend / childrenArr.length,
+          avgReceive: csTotalReceive / childrenArr.length,
+          avgWait: csTotalWait / childrenArr.length
+          // nonExpiredHeaders:
         }
-
-
-
-        //packageName :
-          //toggle: content name or url name
-        
-        var packageNameAccessors = {
-          all: function(d) { return getType(d.response.content.mimeType); },
-          subgroup: function(d) { return getType(d.response.content.mimeType); },
-        };  
-
-        //className :
-          //toggle: content name or url name
-        
-        var classNameAccessors = {
-          name: function(d) { return d.request.url.toString(); },
-          type: function(d) { return formatBytes(k.response.content.size, 2); }
-        };   
-
-        //value:
-          //toggle: size or load time
-             
-        var valueAccessors = {
-          time: function(d) { return +d.time; },
-          size: function(d) { return +d.response.content.size; }
-        };
-
-
-
-            var childrenObject = {
-              packageName: (function(packageName) {
-                packageName === "all" ? classNameAccessors.
-              })(),
-              className: (function(className) {
-                className === "type" ? classNameAccessors.type : classNameAccessors.name;
-              })(),
-              value: (function(value) {
-                value === "time" ? classNameAccessors.time : classNameAccessors.size;  
-              })()
-            }
-
-        childrenArr.push(childrenObject)
-      
+      } //end of global
+      console.log('global', global)
       return global;
-    }
+    } //end of function
 
-    function extractData(harFormat) {
-    //bubble array data(bad), request network phases(rnp), request-initiated requests(rir)
-     var bad = [], rnp = [], rir = []
-      result = harFormat.map(function(d) {
-        //all object data(aod)
-        var aod = {}, url = d.request.url.toString();
-        if(url.lastIndexOf('/') === url.length - 1) url = url.slice(0, url.length - 1);
-        aod.name = (url.substring(url.lastIndexOf('/') + 1, url.length)).trim()
-        aod.url = url;
-        aod.sdt = moment(d.startedDateTime).format('1111');
-        aod.time = moment(d.time).valueOf();
-        aod.type = getType(d.response.content.mimeType);
-        aod.size = d.response.content.size;
-        aod.sizelabel = formatBytes(d.response.content.size, 2);
-        aod.blocked = moment(d.timings.blocked).format('SSSS');
-        aod.dns = moment(d.timings.dns).format('SSSS');
-        aod.connect = moment(d.timings.connect).format('SSSS');
-        aod.send = moment(d.timings.wait).format('SSSS');
-        aod.receive = moment(d.timings.receive).format('SSSS');
-        bad.push({packageName: aod.type, className: aod.name, value: aod.time});
-       })
-       console.log(bad)
-       return {children: bad}
-    }
-
+    function getSize(status, hSize, bSize) {
+      if (status === 304) return +hSize;
+      return Number(hSize) + Number(bSize);
+    };    
+    function getLatency(time, receive) {
+      if (+time > 0 || receive !== undefined) return +time - +receive;
+      return 0;
+    };
+    function getSend(timings) {
+      if (timings && timings.send !== undefined) return +timings.send;
+      return 0;
+    };    
+    function getReceive(timings) {
+      if (timings && timings.receive !== undefined) return +timings.receive;
+      return 0;
+    };
+    function getWait(timings) {
+      if (timings && timings.wait !== undefined) return +timings.wait;
+      return 0;
+    };
+    function getEndTime(startedTime, time) {
+      if (startedTime && time !== undefined) {
+        var startTime = new Date(startedTime).getTime();
+        return startTime + Number(time);
+      } else {
+        return 0;
+      }
+    };
+    // function getNonExpiringCookies(reqCookies, resCookies) {
+    //   var count = 0
+    //   if (reqCookies > 0) {
+    //       //count non-expiring cookies
+    //   if (resCookies > 0) {
+    //       //count non-expiring cookies
+    //   }
+    //   return count;
+    // };
     function getType(type, url) {
       if (!type || type === undefined) {
         return 'other';
@@ -170,58 +213,25 @@ var app = angular.module('capture');
       }
       return 'other';
     }
-
     function formatBytes(bytes,decimals) {
       if(bytes == 0) return '0 Byte';
       var k = 1000,
           dm = decimals + 1 || 3,
-          sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
+          sizes = ['bytes', 'kb', 'mb', 'gb', 'tb', 'pb', 'eb', 'zb', 'yb'],
           i = Math.floor(Math.log(bytes) / Math.log(k));
-      return (bytes / Math.pow(k, i)).toPrecision(dm) + ' ' + sizes[i];
+      return (bytes / Math.pow(k, i)).toPrecision(dm) + '' + sizes[i];
     }
-
-    // function getEntryName(string) {
-    //   if(string.lastIndexOf('/') === string.length - 1) {
-    //     var nUrl = string.slice(0, string.length - 1)
-    //     return (nUrl.substring(nUrl.lastIndexOf('/') + 1, nUrl.length)).trim()
-    //   } else {
-    //     return (string.substring(string.lastIndexOf('/') + 1, string.length)).trim()
-    //   }
-    // }
+    function formatTime(milliseconds) {
+      var time = new Date(milliseconds),
+          duration = time.getUTCSeconds() + "." + time.getUTCMilliseconds() + "ms";
+          return duration;
+    };
+    function getEntryName(str) {
+      if(str.lastIndexOf('/') === str.length - 1) str = str.slice(0, str.length - 1);
+      var name = (str.substring(str.lastIndexOf('/') + 1, str.length)).trim()
+      return name;
+    }
   });
 })(); 
-
-
-//format
-
-      //url global name
-      //url global date
-
-      //global stats:
-        //total page load size / avg load size
-        //total page load time / avg load time
-        //number of requests
-        //number of headers that don't expire
-        //number of cookies
-        //number of requests initiated by other requests
-
-      //packageName: 
-        //filter by: all or content type table
-
-        //group stats: avg sent, avg wait, avg download
-        //group stats: group total load time, group total size
-        //group stats: percentage of total time and total size
-
-        //value:
-          //toggle: size or load time
-
-        //className :
-          //toggle: content name or url name
-
-        //top 5 worst offenders (if 5)
-          //type, name, size, total load time, 
-          //top 5 group total size, group total load time, sent, wait, download
-          //top 5 group avg size, avg load time, sent, wait, download
-          //% of total
 
 

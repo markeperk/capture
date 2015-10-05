@@ -47,7 +47,7 @@
 </div>
 
 <div class="display">
-	<div class="sidebar">
+	<div class="sidebar" ng-show="showSidebar">
 		<div class="site-analyzed" ng-click="codeview = !codeview">
 			<div class="code-toggle">
 				<span class="glyphicon glyphicon-console" style="color: #262626; font-size:15px;">
@@ -59,35 +59,35 @@
 			<div class="g-main">
 				<div class="g-main-panel">
 					<p>Total Size</p>
-					<h1>1.09mb</h1>
+					<h1>{{data.childrenStats.totalSize}}</h1>
 				</div>
 				<div class="g-main-panel">
 					<p>Total Time</p>
-					<h1>0.65s</h1>
+					<h1>{{data.childrenStats.totalTime}}</h1>
 				</div>
 				<div class="g-main-panel">
 					<p>Avg. Req. Size</p>
-					<h1>780kb</h1>
+					<h1>{{data.childrenStats.avgReqSize}}</h1>
 				</div>
 				<div class="g-main-panel">
 					<p>Avg. Req. Time</p>
-					<h1>450ms</h1>
+					<h1>{{data.childrenStats.avgReqTime}}</h1>
 				</div>
-				<div class="g-main-panel g-group" ng-show="false">
+				<div class="g-main-panel g-group" ng-show="gPercent">
 					<p>% Total Size</p>
-					<h1>42%</h1>
+					<h1>{{data.childrenStats.percOfGlobalSize}}</h1>
 				</div>
-				<div class="g-main-panel g-group" ng-show="false">
+				<div class="g-main-panel g-group" ng-show="gPercent">
 					<p>% Total Time</p>
-					<h1>35%</h1>
+					<h1>{{data.childrenStats.percOfGlobalTime}}</h1>
 				</div>
 			</div>
 			<div class="g-other">
 				<div class="g-other-panel">
-					<p><strong>65</strong> Total Requests</p>
-					<p><strong>42</strong> Requests initiated by another</p>
-					<p><strong>40</strong> Non-expiring headers</p>
-					<p><strong>42</strong> Cookies (5 avg. per request)</p>
+					<p><strong>{{data.childrenStats.numOfRequests}}</strong> Requests</p>
+					<p><strong>{{data.childrenStats.numRequestsByOthers}}</strong> Requests initiated by Requests</p>
+					<p><strong>N/A</strong> Non-expiring headers</p>
+					<p><strong>{{data.childrenStats.totalCookies}}</strong> Cookies </p>
 				</div>
 			</div>
 			<div class="g-stats-chart">
@@ -108,20 +108,20 @@
 				</div>
 				<div class="filters-selections">
 					<h3>By Content-Type</h3>
-						<p><a>All (65)</a></p>
-						<p><a>Document (20)</a></p>
-						<p><a>Script (15)</a></p>
-						<p><a>XHR (1)</a></p>
-						<p><a>CSS (2)</a></p>
-						<p><a>Font (5)</a></p>
-						<p><a>Image (45)</a></p>
-						<p><a>Other (2)</a></p>
+						<p><a>All ({{data.globalStats.numOfRequests}})</a></p>
+						<p><a>Document ({{data.globalStats.numOfDocuments}})</a></p>
+						<p><a>Script ({{data.globalStats.numOfScripts}})</a></p>
+						<p><a>XHR ({{data.globalStats.numOfXhr}})</a></p>
+						<p><a>CSS ({{data.globalStats.numOfCss}})</a></p>
+						<p><a>Font ({{data.globalStats.numOfFont}})</a></p>
+						<p><a>Image ({{data.globalStats.numOfImages}})</a></p>
+						<p><a>Other ({{data.globalStats.numOfOther}})</a></p>
 				</div>
 			</div>
 		</div>
 	</div> <!-- end of sidebar -->
 	<div class="har-bubble-display">
-		<bubble-chart data='data' ng-show="!codeview"></bubble-chart>
+		<bubble-chart data='data' ng-show="!codeview" class="bubbleChart"></bubble-chart>
 		<div class="code-view" ng-show="codeview">
 			<pre>{{data | json}}</pre>
 		</div>

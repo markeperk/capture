@@ -8,18 +8,13 @@
       },
       link: function ($scope, elem, attrs) {
 
-        var count = 0;
         $scope.$watch("data", function(n, o) {
           if(n !== o) {
             updateChart();
-            count++;
-            console.log(count)
           }
         });
-
         //definitions
-        
-        var diameter = 600,  //mobile?
+        var diameter = 800,  //mobile?
             format = d3.format(",d"),
             color = d3.scale.category20c();
 
@@ -39,17 +34,14 @@
             .style("border-radius", "6px")
             .style("font", "12px sans-serif")
             .text("tooltip");
-
         //define pack
         var packing = d3.layout.pack()
           .sort(null)
           .size([diameter, diameter])
           .padding(1.5);
 
-
         function updateChart() {
-
-          var data = extractBubbleData((($scope.data || {}).log || {}).entries || []);
+          var data = $scope.data;
           console.log(data);
           if(data.children.length > 0) {
             // packing.radius(sizeAccessors.time)
@@ -96,74 +88,18 @@
       } //end of link
     }; //end of return
   }]) //end of directive
-
 })();
 
 
 
-
-//functions
-
-// function extractBubbleData(arr) {
-// //bubble array data(bad), request network phases(rnp), request-initiated requests(rir)
-//  var bad = [], rnp = [], rir = []
-//   result = arr.map(function(k) {
-//     //all object data(aod)
-//     var aod = {}, url = k.request.url.toString();
-//     if(url.lastIndexOf('/') === url.length - 1) url = url.slice(0, url.length - 1);
-//     aod.name = (url.substring(url.lastIndexOf('/') + 1, url.length)).trim()
-//     aod.url = url;
-//     aod.sdt = moment(k.startedDateTime).format('1111');
-//     aod.time = moment(k.time).valueOf();
-//     aod.type = getType(k.response.content.mimeType);
-//     aod.size = k.response.content.size;
-//     aod.sizelabel = formatBytes(k.response.content.size, 2);
-//     aod.blocked = moment(k.timings.blocked).format('SSSS');
-//     aod.dns = moment(k.timings.dns).format('SSSS');
-//     aod.connect = moment(k.timings.connect).format('SSSS');
-//     aod.send = moment(k.timings.wait).format('SSSS');
-//     aod.receive = moment(k.timings.receive).format('SSSS');
-//     bad.push({packageName: aod.type, className: aod.name, value: aod.time});
-//    })
-//    console.log(bad)
-//    return {children: bad}
-// }
-
-
-
-
-
-
-        
-  //accessors
-  // var sizeAccessors = {
-  //   time: function(d) { console.log(d.time); return +d.time; },
-  //   size: function(d) { return +d.response.content.size; }
-  // };
-
-  // var groupAccessors = {
-  //   type: function(d) { return getType(d.response.content.mimeType); }
-  // };
-
-  // var filterAccessors = {
-  //   all: function(d) { return getType(d.response.content.mimeType); },
-  //   other: function(d) { return getType(d.response.content.mimeType); },
-  //   css: function(d) { return getType(d.response.content.mimeType); },
-  //   script: function(d) { return getType(d.response.content.mimeType); },
-  //   xhr: function(d) { return getType(d.response.content.mimeType); },
-  //   font: function(d) { return getType(d.response.content.mimeType); },
-  //   image: function(d) { return getType(d.response.content.mimeType); }
-  // };       
-
-  // var tooltipAccessors = {
-  //   name: function(d) { return getEntryName(d.request.url.toString()); },
-  //   url: function(d) { return d.request.url.toString(); },
-  //   size: function(d) { return formatBytes(k.response.content.size, 2); }
-  // };
-
-
-
-
+// var classNameAccessors = {
+//   name: function(d) { return d.request.url.toString(); },
+//   type: function(d) { return formatBytes(k.response.content.size, 2); }
+// };   
+// var valueAccessors = {
+//   time: function(d) { return +d.time; },
+//   size: function(d) { return +d.response.content.size; }
+// };
 
 
 

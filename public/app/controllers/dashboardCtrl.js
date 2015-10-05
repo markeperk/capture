@@ -3,9 +3,7 @@
 
 var app = angular.module('capture');
 
-	app.controller('dashboardCtrl', function($scope, dashboardService) {
-
-		$scope.url = "nofileselectedyet.har"
+	app.controller('dashboardCtrl', function($scope, dashboardService, cleanseHarService) {
 
 		var harInputOption = 1;
 	  $scope.harInputOptions = function() {
@@ -30,24 +28,35 @@ var app = angular.module('capture');
     }
     $scope.harInputOptions();
 
+    $scope.showSidebar = false;
+
 		$scope.urlHarRequest = function(url){
-				var url = addhttp(url);
-				$scope.url = "Retrieving Data for " + url;
-				$scope.loadHar = !$scope.loadHar;
-				dashboardService.urlHarRequest(url)
-		      .then(function(data) {
-		      	$scope.url = removehttp(url) + ".har";
-		      	$scope.loadHar = !$scope.loadHar;
-		      	$scope.jsonError = '';
-		        $scope.data = data; 
-		        $scope.urlRequest = '';
-		    });
+			$scope.showSidebar = true;
+			$scope.url = "Building .har for " + url;
+			url = addhttp(url);
+			$scope.loadHar = !$scope.loadHar;
+			dashboardService.urlHarRequest(url)
+	      .then(function(data) {
+	      	data = addDataIdentifiers(data)
+	      	cleanseHarService.cleanseHarData(data)
+	      		.then(function(data) {
+			      	$scope.url = removehttp(url) + ".har";
+			      	$scope.loadHar = !$scope.loadHar;
+			      	$scope.jsonError = '';
+			        $scope.data = data; 
+			        $scope.urlRequest = '';	
+	      		});
+	    	});
     };
 
-		$scope.uploadedHarData = function(data){
+		$scope.uploadedHarData = function(data) {
+			$scope.harJson = '';
+			data = addDataIdentifiers(JSON.parse(data));
+	    cleanseHarService.cleanseHarData(data).then(function(data) {
+	    	$scope.showSidebar = true;
 				$scope.url = removehttp(document.getElementById("uploadHar").value);
-				$scope.harJson = '';
-				$scope.data = JSON.parse(data);
+				$scope.data = data;
+			});
     };
  
 	  $scope.pastedHarData = function(data){
@@ -61,10 +70,15 @@ var app = angular.module('capture');
 				}
 		    dashboardService.pastedHarData(data)
 		      .then(function(data) {
-		      	$scope.loadHar = !$scope.loadHar;
-		        $scope.data = data; 
-		        $scope.harJson = '';
-		    });
+		      	$scope.showSidebar = true;
+		      	data = addDataIdentifiers(data)
+		      	cleanseHarService.cleanseHarData(data)
+		      		.then(function(data) {
+				      	$scope.loadHar = !$scope.loadHar;
+				        $scope.data = data; 
+				        $scope.harJson = '';
+				      });
+		    	});
 	  	} else {
 	  		$scope.url = "";
 	  		$scope.data = "";
@@ -73,8 +87,10 @@ var app = angular.module('capture');
 	  }
 
 	  //selections
-
+		$scope.gPercent = false;
 	  $scope.packageName = function(packageName) {
+	  	//if someone selects something other than all.. then turn on addtional field
+	    data.requestedPackageName === "all" ? $scope.gPercent = true : $scope.gPercent = false;
 
 
 	  }
@@ -88,6 +104,13 @@ var app = angular.module('capture');
 
 
 	  //functions
+
+	  function addDataIdentifiers(data) {
+	  	data.packageName = "all";
+	  	data.value = "time";
+	  	data.className = "name";
+	  	return data;
+	  }
 		function validateJSON(harJson) {
 	    try {
         var har = JSON.parse(harJson);
