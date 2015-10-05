@@ -104,85 +104,34 @@
 
 //functions
 
-function extractBubbleData(arr) {
-//bubble array data(bad), request network phases(rnp), request-initiated requests(rir)
- var bad = [], rnp = [], rir = []
-  result = arr.map(function(k) {
-    //all object data(aod)
-    var aod = {}, url = k.request.url.toString();
-    if(url.lastIndexOf('/') === url.length - 1) url = url.slice(0, url.length - 1);
-    aod.name = (url.substring(url.lastIndexOf('/') + 1, url.length)).trim()
-    aod.url = url;
-    aod.sdt = moment(k.startedDateTime).format('1111');
-    aod.time = moment(k.time).valueOf();
-    aod.type = getType(k.response.content.mimeType);
-    aod.size = k.response.content.size;
-    aod.sizelabel = formatBytes(k.response.content.size, 2);
-    aod.blocked = moment(k.timings.blocked).format('SSSS');
-    aod.dns = moment(k.timings.dns).format('SSSS');
-    aod.connect = moment(k.timings.connect).format('SSSS');
-    aod.send = moment(k.timings.wait).format('SSSS');
-    aod.receive = moment(k.timings.receive).format('SSSS');
-    bad.push({packageName: aod.type, className: aod.name, value: aod.time});
-   })
-   console.log(bad)
-   return {children: bad}
-}
+// function extractBubbleData(arr) {
+// //bubble array data(bad), request network phases(rnp), request-initiated requests(rir)
+//  var bad = [], rnp = [], rir = []
+//   result = arr.map(function(k) {
+//     //all object data(aod)
+//     var aod = {}, url = k.request.url.toString();
+//     if(url.lastIndexOf('/') === url.length - 1) url = url.slice(0, url.length - 1);
+//     aod.name = (url.substring(url.lastIndexOf('/') + 1, url.length)).trim()
+//     aod.url = url;
+//     aod.sdt = moment(k.startedDateTime).format('1111');
+//     aod.time = moment(k.time).valueOf();
+//     aod.type = getType(k.response.content.mimeType);
+//     aod.size = k.response.content.size;
+//     aod.sizelabel = formatBytes(k.response.content.size, 2);
+//     aod.blocked = moment(k.timings.blocked).format('SSSS');
+//     aod.dns = moment(k.timings.dns).format('SSSS');
+//     aod.connect = moment(k.timings.connect).format('SSSS');
+//     aod.send = moment(k.timings.wait).format('SSSS');
+//     aod.receive = moment(k.timings.receive).format('SSSS');
+//     bad.push({packageName: aod.type, className: aod.name, value: aod.time});
+//    })
+//    console.log(bad)
+//    return {children: bad}
+// }
 
 
 
-function getType(ct, url) {
-    if (!ct || ct === undefined) {
-      return 'other';
-    }
-    ct = ct.toLowerCase();
-    if (ct.substr(0, 8) === 'text/css') {
-      return 'css';
-    }
-    if (/javascript/.test(ct)) {
-      return 'script';
-    }
-    if (/\/json/.test(ct)) {
-      return 'xhr';
-    }
-    if (ct.substr(0, 5) === 'font/' ||
-        /(\/|-)font-/.test(ct) || /\/font/.test(ct) ||
-        /\.((eot)|(otf)|(ttf)|(woff))($|\?)/i.test(url)) {
-      return 'font';
-    }
-    if (ct.substr(0, 6) === 'image/' ||
-        /\.((gif)|(png)|(jpe)|(jpeg)|(jpg)|(tiff))($|\?)/i.test(url)) {
-      return 'image';
-    }
-    if (ct.substr(0, 6) === 'audio/' || ct.substr(0, 6) === 'video/' ||
-        /\.((flac)|(ogg)|(opus)|(mp3)|(wav)|(weba))($|\?)/i.test(url) ||
-        /\.((mp4)|(webm))($|\?)/i.test(url)) {
-      return 'other';
-    }
-    if (ct.substr(0, 9) === 'text/html' ||
-        ct.substr(0, 10) === 'text/plain') {
-      return 'document';
-    }
-    return 'other';
-  }
 
-function formatBytes(bytes,decimals) {
-   if(bytes == 0) return '0 Byte';
-   var k = 1000;
-   var dm = decimals + 1 || 3;
-   var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-   var i = Math.floor(Math.log(bytes) / Math.log(k));
-   return (bytes / Math.pow(k, i)).toPrecision(dm) + ' ' + sizes[i];
-}
-
-function getEntryName(string) {
-  if(string.lastIndexOf('/') === string.length - 1) {
-    var nUrl = string.slice(0, string.length - 1)
-    return (nUrl.substring(nUrl.lastIndexOf('/') + 1, nUrl.length)).trim()
-  } else {
-    return (string.substring(string.lastIndexOf('/') + 1, string.length)).trim()
-  }
-}
 
 
         

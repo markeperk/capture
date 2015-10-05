@@ -1,8 +1,5 @@
 var q = require('q');
 var phantom = require('phantom');
-// var phantom = require('phantomjs');
-// var phantom = require('node-phantom');
-
 
 
 module.exports.buildHarFile = function(req, res) {

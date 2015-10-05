@@ -5,54 +5,54 @@ var app = angular.module('capture');
 
 	app.service('dashboardService', function($http, $q){
 
-		 this.pastedHarData = function(harData){
+		this.pastedHarData = function(harData){
 		 	var deferred = $q.defer()
-      $http({
-      	method: 'POST',
-      	url: '/api/pasted', 
-      	data: harData
-      }).then(function(res) {
-	      console.log('service pasteddata', res.data)
+	    $http({
+	    	method: 'POST',
+	    	url: '/api/pasted', 
+	    	data: harData
+	    }).then(function(res) {
 	      deferred.resolve(res.data);
 	    }).catch(function(res) {
 	      deferred.reject(res);
 	    });
 	    return deferred.promise;
-		  };
+		};
 
-		 this.urlHarRequest = function(url){
-		 	var url = String(url)
-		 	console.log("service urlRequest", url);
-		 	var deferred = $q.defer()
-      $http({
-      	method: 'POST',
-      	url: '/api/urlrequest', 
-      	data: { url: url }
-      }).then(function(res) {
-      	console.log('service res', res.data[0])
-      	var address = res.data[0].address, title = res.data[0].title, startTime = res.data[0].startTime, endTime = res.data[0].endTime, resources = res.data[0].resources;
-      	var harData = createHAR(address, title, startTime, endTime, resources);
-	      console.log('service urlrequest', harData)
-	      deferred.resolve(harData);
-	    }).catch(function(res) {
-	      deferred.reject(res);
-	    });
-	    return deferred.promise;
-		  };
+	this.urlHarRequest = function(url){
+	 	var url = String(url)
+	 	console.log("service urlRequest", url);
+	 	var deferred = $q.defer()
+    $http({
+    	method: 'POST',
+    	url: '/api/urlrequest', 
+    	data: { url: url }
+    }).then(function(res) {
+    	var address = res.data[0].address, 
+    			title = res.data[0].title, 
+    			startTime = res.data[0].startTime, 
+    			endTime = res.data[0].endTime, 
+    			resources = res.data[0].resources,
+    			harData = createHar(address, title, startTime, endTime, resources);
+      deferred.resolve(harData);
+    }).catch(function(res) {
+      deferred.reject(res);
+    });
+    return deferred.promise;
+	};
 
-	function createHAR(address, title, startTime, endTime, resources) {
+	//build Har file from url request
+	function createHar(address, title, startTime, endTime, resources) {
     var entries = [];
     resources = resources.filter(function(j) {return j}).map(function(k) {
   		 var request = k.request,
 		       startReply = k.startReply,
 		       endReply = k.endReply;
       if (!request || !startReply || !endReply) {
-          return;
+        return;
       }
-      // Exclude Data URI from HAR file because
-      // they aren't included in specification
       if (request.url.match(/(^data:image\/.*)/i)) {
-          return;
+        return;
 			}
       entries.push({
         // startedDateTime: request.time.toISOString(),
@@ -114,9 +114,7 @@ var app = angular.module('capture');
         entries: entries
       }
     };
-	} //end of function createHAR
-
-
+	 } //end of function createHAR
 	});
 })(); 
 

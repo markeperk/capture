@@ -6,7 +6,6 @@
 		</div>
 		<div class="menu-right">
 			<div class="menu-input-holder">
-
 				<div class="menu-input">
 					<!-- 	Input URL -->
 					<div class="menu-input-type" ng-show="menuInputUrl">
@@ -47,9 +46,84 @@
 	</div>
 </div>
 
-<div class="container">{{url}}</div>
-
-<div class="container">
-
-	<bubble-chart data='data'></bubble-chart>
-</div>
+<div class="display">
+	<div class="sidebar">
+		<div class="site-analyzed" ng-click="codeview = !codeview">
+			<div class="code-toggle">
+				<span class="glyphicon glyphicon-console" style="color: #262626; font-size:15px;">
+				</span>
+			</div>
+			<div class="url-name">{{url}}</div>
+		</div>
+		<div class="g-stats">
+			<div class="g-main">
+				<div class="g-main-panel">
+					<p>Total Size</p>
+					<h1>1.09mb</h1>
+				</div>
+				<div class="g-main-panel">
+					<p>Total Time</p>
+					<h1>0.65s</h1>
+				</div>
+				<div class="g-main-panel">
+					<p>Avg. Req. Size</p>
+					<h1>780kb</h1>
+				</div>
+				<div class="g-main-panel">
+					<p>Avg. Req. Time</p>
+					<h1>450ms</h1>
+				</div>
+				<div class="g-main-panel g-group" ng-show="false">
+					<p>% Total Size</p>
+					<h1>42%</h1>
+				</div>
+				<div class="g-main-panel g-group" ng-show="false">
+					<p>% Total Time</p>
+					<h1>35%</h1>
+				</div>
+			</div>
+			<div class="g-other">
+				<div class="g-other-panel">
+					<p><strong>65</strong> Total Requests</p>
+					<p><strong>42</strong> Requests initiated by another</p>
+					<p><strong>40</strong> Non-expiring headers</p>
+					<p><strong>42</strong> Cookies (5 avg. per request)</p>
+				</div>
+			</div>
+			<div class="g-stats-chart">
+				<bar-chart data='data'></bar-chart>
+			</div>
+		</div>
+		<div class="g-selections">
+			<div class="g-selections-title">
+				<h1><strong>Filters & Selections</strong></h1>
+				<div class="filters-selections"></div>
+					<h3>Label Value</h3>
+						<p><a>Name</a></p>
+						<p><a>Content-Type</a></p>
+				<div class="filters-selections">
+					<h3>Radius Value</h3>
+						<p><a>Size of Request</a></p>
+						<p><a>Load Time</a></p>
+				</div>
+				<div class="filters-selections">
+					<h3>By Content-Type</h3>
+						<p><a>All (65)</a></p>
+						<p><a>Document (20)</a></p>
+						<p><a>Script (15)</a></p>
+						<p><a>XHR (1)</a></p>
+						<p><a>CSS (2)</a></p>
+						<p><a>Font (5)</a></p>
+						<p><a>Image (45)</a></p>
+						<p><a>Other (2)</a></p>
+				</div>
+			</div>
+		</div>
+	</div> <!-- end of sidebar -->
+	<div class="har-bubble-display">
+		<bubble-chart data='data' ng-show="!codeview"></bubble-chart>
+		<div class="code-view" ng-show="codeview">
+			<pre>{{data | json}}</pre>
+		</div>
+	</div>
+</div> <!-- end of display -->

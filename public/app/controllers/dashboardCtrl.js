@@ -3,8 +3,10 @@
 
 var app = angular.module('capture');
 
-	app.controller('dashboardCtrl', function($scope, dashboardService){
-		
+	app.controller('dashboardCtrl', function($scope, dashboardService) {
+
+		$scope.url = "nofileselectedyet.har"
+
 		var harInputOption = 1;
 	  $scope.harInputOptions = function() {
       if (harInputOption === 1) {
@@ -50,8 +52,8 @@ var app = angular.module('capture');
  
 	  $scope.pastedHarData = function(data){
 	  	if(validateJSON(data)) {
+	  		$scope.loadHar = !$scope.loadHar;
 	  		var data = JSON.parse(data)
-	  		console.log(data.log.pages.length)
 				if(data.log.pages.length === 0) { 
 					$scope.url = "unnamed-data.har"
 				} else {
@@ -59,15 +61,32 @@ var app = angular.module('capture');
 				}
 		    dashboardService.pastedHarData(data)
 		      .then(function(data) {
+		      	$scope.loadHar = !$scope.loadHar;
 		        $scope.data = data; 
 		        $scope.harJson = '';
 		    });
 	  	} else {
 	  		$scope.url = "";
 	  		$scope.data = "";
-	  		$scope.url = "Please use valid .har data";
+	  		$scope.url = "Invalid .har data";
 	  	}
 	  }
+
+	  //selections
+
+	  $scope.packageName = function(packageName) {
+
+
+	  }
+	  $scope.className = function(className) {
+
+	  }
+	  $scope.value = function(value) {
+
+	  }
+
+
+
 	  //functions
 		function validateJSON(harJson) {
 	    try {
@@ -83,9 +102,7 @@ var app = angular.module('capture');
 		 	if (!url.match(/^[a-zA-Z]+:\/\//) && url.search("www.") === -1) url = 'http://www.' + url;
 		 	if (!url.match(/^[a-zA-Z]+:\/\//)) url = 'http://' + url;
 		 	return url;
-		};
-		var a = 0
-		
+		};		
 		function removehttp(url) {
 			var url = url.trim();
 			if (url.lastIndexOf('/') === url.length - 1) url = url.slice(0, url.length - 1);
@@ -95,7 +112,6 @@ var app = angular.module('capture');
 		 	if (url.search("http://") !== -1) url = url.substring(7, url.length);
 		 	if (url.lastIndexOf(".har") !== -1) url = url.substring(url.indexOf("www.") + 4, url.length);
 		 	if (url.indexOf("fakepath") !== -1) url = url.substring(url.indexOf("fakepath") + 9, url.length);
-		 	console.log(a)
 		 	return url;
 		};
 	});

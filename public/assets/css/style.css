@@ -3,9 +3,10 @@ html, body {
   height: 100%;
   font-family: "adelle-sans", sans-serif;
 	margin: 0px;
+	background-color: #D9D9D9;
 }
 
-body {
+/*body {
 	background: rgba(79,79,79,0.33);
 	background: -moz-linear-gradient(top, rgba(79,79,79,0.33) 0%, rgba(249,246,230,1) 100%);
 	background: -webkit-gradient(left top, left bottom, color-stop(0%, rgba(79,79,79,0.33)), color-stop(100%, rgba(249,246,230,1)));
@@ -14,7 +15,9 @@ body {
 	background: -ms-linear-gradient(top, rgba(79,79,79,0.33) 0%, rgba(249,246,230,1) 100%);
 	background: linear-gradient(to bottom, rgba(79,79,79,0.33) 0%, rgba(249,246,230,1) 100%);
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#4f4f4f', endColorstr='#f9f6e6', GradientType=0 );
-}
+}*/
+
+/*main*/
 
 .topbar {
 	width: 100%;
@@ -22,13 +25,27 @@ body {
   background-color: #262626;
   margin: 0;
 }
+.display {
+	width: 100%;
+	height: auto-height;
+	margin: 0px;
+	padding: 0px;
+	display: -webkit-flex;
+	display: flex;
+	-webkit-flex-direction: row;
+	flex-direction: row;
+	-webkit-justify-content: flex-start;
+	justify-content: flex-start;
+}
+
+/*selection bar*/
 .menubar {
 	width: 100%;
 	height: 85px;
 	position: relative;
   padding-top: 28px;
   background-color: #2C2C2C;
-  margin-bottom: 20px;
+  margin: 0px;
 }
 .menu {
 	width: 100%;
@@ -79,14 +96,12 @@ body {
 	width: 60%;
 	height: 100%;
 }
-
 input[type="text"], input[type="email"], input[type="url"], input[type="password"], input[type="search"], textarea {
 	color: #b8b9b2;
 	border: 1px solid #e8ca14;
 	border-radius: 2px;
 	resize: vertical;
 }
-
 .btn {
   display: inline-block;
   margin-bottom: 0;
@@ -165,6 +180,143 @@ input[type="file"] {
 	margin: 4px auto;
 }
 
+/*sidebar*/
+.sidebar {
+	width: 250px;
+	height: 100%;
+	margin: 0px;
+	padding: 10px;
+}
+.site-analyzed {
+	cursor: pointer;
+	margin-bottom: 20px;
+	display: -webkit-flex;
+	display: flex;
+	-webkit-flex-direction: row;
+	flex-direction: row;
+	-webkit-justify-content: flex-start;
+	justify-content: flex-start;
+}
+.code-toggle {
+	width: 20px;
+	padding-left: 8px;
+	flex-grow: 1;
+}
+.url-name {
+	flex-grow: 1;
+	font-weight: bold;
+}
+.g-stats {
+	width: 100%;
+}
+.g-main {
+	width: 100%;
+	margin-bottom: 5px;
+	text-align: center;
+	display: -webkit-flex;
+	display: flex;
+	-webkit-flex-flow: row wrap;
+	flex-flow: row wrap;
+	-webkit-justify-content: space-around;
+	justify-content: space-around;
+	-webkit-align-content: flex-start;
+	align-content: flex-start;
+}
+.g-main p {
+	margin: 3px;
+	font-size: 10px;
+}
+.g-main h1 {
+	margin: 3px;
+	font-size: 18px;
+	font-weight: 600;
+}
+.g-main-panel {
+	align-self: flex-start;
+	background-color: rgba(50, 50, 50, .9);
+	color: rgba(255, 255, 255, .8);
+	width: 44%;
+	height: 50px;
+	margin: 2%;
+	padding: 3px 1px;
+}
+.g-group {
+	background-color: #e8ca14;
+	color: #2C2C2C;
+}
+.g-other {
+	width: 100%;
+	height: 100%;
+}
+.g-other-panel {
+	margin: 5px 0 0 10px;
+}
+.g-other p{
+	margin: 3px;
+	font-size: 10px;
+}
+.g-selections {
+	width: 100%;
+	margin: 10px 0px;
+	display: -webkit-flex;
+	display: flex;
+	-webkit-flex-flow: flex-direction;
+	flex-flow: flex-direction;	
+	-webkit-justify-content: flex-start;
+	justify-content: flex-start;
+}
+.g-selections-title {
+	width: 100%;
+	height: 100%;
+	margin-left: 4px;
+}
+.g-selections a {
+	cursor: pointer;
+	text-decoration: none;
+	color: #2C2C2C;
+}
+.g-selections a:hover {
+	color: black;
+	font-weight: bold;
+}
+.g-selections h1 {
+	margin: 10px 2px;
+	padding-left: 2px;
+	font-size: 13px;
+}
+.g-selections h3 {
+	margin: 8px 6px 8px 3px;
+	padding-left: 5px;
+	font-size: 11px;
+	font-weight: 600;
+	border-bottom: 2px solid #e8ca14;
+	display:inline;  
+}
+.g-selections p {
+	margin: 3px 10px 3px 3px;
+	padding-left: 8px;
+	font-size: 10px;
+}
+.filters-selections {
+	width: 100%;
+	height: 100%;
+}
+.g-stats-chart {
+
+}
+.har-bubble-display {
+	margin: 0 auto;
+	width: 100%;
+	height: 100%;
+}
+.code-view {
+	padding: 15px;
+}
+/*bubble-display*/
+
+
+
+
 
 
 @media (min-width: 0px) {
@@ -175,4 +327,5 @@ input[type="file"] {
 
 text {
   font: 10px sans-serif;
+  color: #262626;
 }
