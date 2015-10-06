@@ -7,122 +7,135 @@
         data: '='
       },
       link: function ($scope, elem, attrs) {
-      //   console.log($scope.data);
-      //   var data = $scope.data.barChart;
+
+        $scope.$watch("data", function(n, o) {
+          if(n !== o) { updateChart(); }
+        });
+ 
+        var margin = {top: 20, right: 20, bottom: 20, left: 20},
+        // var margin = {top: 20, right: 10, bottom: 20, left: 2},
+            width = 220 - margin.left - margin.right,
+            height = 100 - margin.top - margin.bottom;
+
+        var x = d3.scale.ordinal()
+            .rangeRoundBands([0, width], .3);
+        var y = d3.scale.linear()
+            .range([height, 0]);
+        var xAxis = d3.svg.axis()
+            .scale(x)
+            .orient("bottom");
+        var yAxis = d3.svg.axis()
+            .scale(y)
+            .orient("left")
+            // .tickFormat(10,"");
+        var svg = d3.select(elem[0])
+          .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+          .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+            .call(xAxis)
        
-      //   data.map(function(i) {
-      //     if (i.day.toLowerCase() === "Sent") {
-      //         i.order = 1;
-      //     }          
-      //     else if (i.day.toLowerCase() === "Wait") {
-      //         i.order = 2;
-      //     }          
-      //     else if (i.day.toLowerCase() === "Download") {
-      //         i.order = 3;
-      //     }          
-      //     else if (i.day.toLowerCase() === "thu") {
-      //         i.order = 4;
-      //     }         
-      //     return;
-      //   });
-      //   console.log(data);
-      //   var margin = {top: 4, right: 4, bottom: 4, left: 4},
-      //       width = 180 - margin.left - margin.right,
-      //       height = 120 - margin.top - margin.bottom;
-      //   var format = d3.format("");
-      //   var x = d3.scale.ordinal()
-      //       .rangeRoundBands([0, width], .1, .7);
-      //   var y = d3.scale.linear()
-      //       .range([height, 0]);
-      //   var xAxis = d3.svg.axis()
-      //       .scale(x)
-      //       .orient("bottom");
-      //   var yAxis = d3.svg.axis()
-      //       .scale(y)
-      //       .orient("left")
-      //       .tickFormat(format);
-      //   var svg = d3.select(".chart").append("svg")
-      //       .attr("width", width + margin.left + margin.right)
-      //       .attr("height", height + margin.top + margin.bottom)
-      //     .append("g")
-      //       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        var tooltip = d3.select("body")
+          .append("div")
+          .style("position", "absolute")
+          .style("z-index", "10")
+          .style("visibility", "hidden")
+          .style("color", "white")
+          .style("padding", "8px")
+          .style("margin", "5px")
+          .style("background-color", "rgba(44, 44, 44, 0.8)")
+          .style("border-radius", "6px")
+          .style("font", "12px sans-serif")
+          .text("tooltip");
 
-      //   // var sortTimeout = setTimeout(function() {
-      //   //       d3.select("input").property("checked", true).each(change);
-      //   //     }, 4000);
+        var label = function(d) { return d.label;},
+            padding = 1;
+        
+       
+        function updateChart() {
+          var d = $scope.data;           
+          var data = [
+              {label: "Sent", duration: +d.childrenStats.avgSend },  
+              {label: "Waiting", duration: +d.childrenStats.avgWait },   
+              {label: "Received", duration: +d.childrenStats.avgReceive }
+            ];
 
-      // function updateRequestData(data) {
-      //     data.forEach(function(d) {
-      //       d.count = +d.count;
-      //     });
+          x.domain(data.map(function(d) { return d.label; }));
+          y.domain([0, d3.max(data, function(d) { return data; })]);
+            
+          var rect = svg.selectAll("rect").data(data)
+       
+          rect.transition().duration(0)          
+          rect.exit().transition().duration(0).remove();
+          rect.selectAll('text').remove();
 
-      //     x.domain(data.map(function(d) { return d.day; }));
-      //     y.domain([0, d3.max(data, function(d) { return d.count + 1; })]);
+          svg.append("g")
+              .attr("class", "x axis")
+              .attr("transform", "translate(0," + height + ")")
 
-      //     svg.append("g")
-      //         .attr("class", "x axis")
-      //         .attr("transform", "translate(0," + height + ")")
-      //         .call(xAxis);
+          rect.enter().append("rect")
+              .attr("class", "bar")
+              .attr("x", function(d) { return x(d.label); })
+              .attr("width", x.rangeBand())
+              .attr("y", function(d) { return y(d.duration); })
+              .attr("height", function(d, i) { return height - y(d.duration); })
 
-      //     svg.append("g")
-      //         .attr("class", "y axis")
-      //         .call(yAxis)
-      //       .append("text")
-      //         .attr("transform", "rotate(-90)")
-      //         .attr("y", 6)
-      //         .attr("dy", ".71em")
-      //         .style("text-anchor", "end")
-      //         .text("Average Request in Stages");
+          var xAxis = d3.svg.axis().scale(x).orient("bottom");
+          var yAxis = d3.svg.axis().scale(y).orient("left");
 
-      //     svg.selectAll(".bar")
-      //         .data(data)
-      //       .enter().append("rect")
-      //         .attr("class", "bar")
-      //         .attr("x", function(d) { return x(d.day); })
-      //         .attr("width", x.rangeBand())
-      //         .attr("y", function(d) { return y(0); })
-      //         .attr("height", function(d) { return height - y(0); })
-      //         .transition().duration(1500)
-      //         .attr("y", function(d) { return y(d.count); })
-      //         .attr("height", function(d) { return height - y(d.count); })
+          svg.selectAll(".y.xis")
+              .call(yAxis)
 
-      //       d3.select("input").on("change", change);
-      //   };
-      //   updateRequestData(data);
+          svg.selectAll(".xAxis")
+              .call(xAxis);
 
+          // svg.selectAll(".bar")
+          //     .data(data)
+          //   .enter().append("rect")
+          //     .attr("class", "bar")
+          //     .attr("x", function(d) { return x(d.label); })
+          //     .attr("width", x.rangeBand())
+          //     .attr("y", function(d) { return y(d.duration); })
+          //     .attr("height", function(d, i) { return height - y(d.duration); })
+        // .transition().duration(1500)
+        //   .attr("y", function(d) { return y(d.label); })
+        //   .attr("height", function(d) { return height - y(d.duration);})
+        // .on("mouseover", function(d) {
+        //     tooltip.html( "Average" + ': ' + d.duration)               
+        //       .style("left", (d3.event.pageX) + "px")      
+        //       .style("top", (d3.event.pageY - 28) + "px");
+        //     tooltip.style("visibility", "visible");
+        //     })
+        //     .on("mousemove", function() {
+        //       return tooltip.style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");
+        //     })
+        //     .on("mouseout", function() {return tooltip.style("visibility", "hidden");})
 
-      // function change() {
-      //     clearTimeout(sortTimeout);
+          // svg.selectAll("text")
+          //     .data(data)
+          //   .enter().append("text")
+          //    .text(function(d) { return d })
+          //    // .attr("text-anchor", "middle")
+          //    // .attr("x", function(d) { return x(d.label); })
+          //    // .attr("y", function(d) { return y(d.duration) ; })
+          //    .attr("x", function(d, i) {return i * (width / data.length) + 5; })
+          //    .attr("y", function(d) { return height - (d.duration) + 15; })
+          //    .attr("x", function(d) { return x(d.label); })
+          //    .attr("font-family", "sans-serif") 
+          //    .attr("font-size", "10px")
+          //    .attr("color", "black");
+          //    // .attr("fill", "white");
 
-      //     // Copy-on-write since tweens are evaluated after a delay.
-      //     var x0 = x.domain(data.sort(this.checked
-      //       ? function(a, b) { return b.count - a.count; }
-      //       : function(a, b) { return d3.ascending(a.order, b.order); })
-      //       .map(function(d) { 
-      //         return d.day; }))
-      //       .copy();
-
-
-      //     svg.selectAll(".bar")
-      //       .sort(function(a, b) { return x0(a.day) - x0(b.day); });
-
-      //     var transition = svg.transition().duration(750),
-      //         delay = function(d, i) { return i * 50; };
-
-      //     transition.selectAll(".bar")
-      //       .delay(delay)
-      //       .attr("x", function(d) { return x0(d.day); });
-
-      //     transition.select(".x.axis")
-      //       .call(xAxis)
-      //       .selectAll("g")
-      //       .delay(delay);
-      //   };
-
+        };
+        function formatTime(milliseconds) {
+          var time = new Date(milliseconds),
+          duration = time.getUTCSeconds() + "." + time.getUTCMilliseconds() + " ms";
+          return duration;
+        };
       }
     };
   }]) 
-
 })();
 
 

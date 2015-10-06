@@ -177,9 +177,9 @@
           totalCookies: csTotalCookies,
           numOfRequests: childrenArr.length,
           numRequestsByOthers: csNumOfRequests,
-          avgSend: +csTotalSend / +childrenArr.length || 0,
-          avgReceive: +csTotalReceive / +childrenArr.length || 0,
-          avgWait: +csTotalWait / +childrenArr.length || 0,
+          avgSend: formatTime(+csTotalSend / +childrenArr.length || 0),
+          avgReceive: formatTime(+csTotalReceive / +childrenArr.length || 0),
+          avgWait: formatTime(+csTotalWait / +childrenArr.length || 0),
           numStatusOtherThan200: csStatusCount,
           nonExpiredHeaders: null
         }

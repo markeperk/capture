@@ -55,7 +55,7 @@
 
 <div class="display">
 	<div class="sidebar" ng-show="showSidebar">
-		<div class="site-analyzed" ng-click="codeview = !codeview">
+		<div class="site-analyzed" ng-click="changeView()">
 			<div class="code-toggle">
 				<i class="fa fa-file-code-o" style="color: #262626; font-size:15px;">
 				</i>
@@ -86,30 +86,33 @@
 					<h1>{{data.globalStats.domContentLoaded | ifEmpty:0}}</h1>
 				</div>
 				<div class="g-main-panel">
-					<p>Load</p>
+					<p>onLoad Duration</p>
 					<h1>{{data.globalStats.onLoad | ifEmpty:0 }}</h1>
 				</div>
 				<div class="g-main-panel g-group" ng-show="showContentTypeStats">
-					<p>% Total Size</p>
+					<p>% Total Transfer</p>
 					<h1>{{data.childrenStats.percOfGlobalSize | number:2 | ifEmpty:0}}%</h1>
 				</div>
 				<div class="g-main-panel g-group" ng-show="showContentTypeStats">
-					<p>% Total Time</p>
+					<p>% Total Duration</p>
 					<h1>{{data.childrenStats.percOfGlobalTime | number:2 | ifEmpty:0}}%</h1>
 				</div>
 			</div>
 			<div class="g-other">
 				<div class="g-other-panel">
-					<p><strong>{{data.childrenStats.numOfRequests | ifEmpty:0}}</strong> Requests</p>
+					<p><strong>{{data.childrenStats.numOfRequests | ifEmpty:0}}</strong> Requests ({{contentTypeAccessor | capitalize}})</p>
 					<p><strong>{{data.childrenStats.numStatusOtherThan200 | ifEmpty:0}}</strong> Requests NOT Status "200 OK" </p>
 					<p><strong>{{data.childrenStats.numRequestsByOthers | ifEmpty:0}}</strong> Requests initiated by Requests</p>
+					<p>Avg. time request sent: <strong>{{data.childrenStats.avgSend | ifEmpty:0}}</strong></p>
+					<p>Avg. time waiting: <strong>{{data.childrenStats.avgWait | ifEmpty:0}}</strong></p>
+					<p>Avg. time to finish download: <strong>{{data.childrenStats.avgReceive | ifEmpty:0}}</strong></p>
 					<p><strong>{{data.childrenStats.nonExpiredHeaders | ifEmpty:'N/A'}}</strong> Non-expiring headers</p>
 					<p><strong>{{data.childrenStats.totalCookies | ifEmpty:0}}</strong> Cookies </p>
 				</div>
 			</div>
-			<div class="g-stats-chart">
-				<bar-chart data='data'></bar-chart>
-			</div>
+<!-- 			<div class="g-stats-chart">
+				<bar-chart data='data' class="bar-chart"></bar-chart>
+			</div> -->
 		</div>
 		<div class="g-selections">
 			<div class="g-selections-title">
@@ -145,8 +148,8 @@
 	<div class="har-bubble-display">
 		<div class="loading-message"><p>{{loadingMessage}}</p></div>
 		<div class="inner-bubble-display">
-			<bubble-chart data='data' label-accessor="labelAccessor" ng-show="!codeview" class="bubble-chart"></bubble-chart>
-			<div class="code-view" ng-show="codeview">
+			<bubble-chart data='data' label-accessor="labelAccessor" tooltip='tooltip' ng-show="codeview" class="bubble-chart"></bubble-chart>
+			<div class="code-view" ng-show="!codeview">
 				<pre>{{rawData | json}}</pre>
 			</div>
 

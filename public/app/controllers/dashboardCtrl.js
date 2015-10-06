@@ -3,43 +3,63 @@
 
 	var app = angular.module('capture');
 
-	app.controller('dashboardCtrl', function( $scope, dashboardService, cleanseHarService) {
+	app.controller('dashboardCtrl', function( $scope, $timeout, dashboardService, cleanseHarService) {
 
 		$scope.input_type = 1;
     $scope.showSidebar = false;
+  	$scope.codeview = true;
+
+    $scope.changeView = function() {
+    	$scope.tooltip.style("visibility", "hidden");
+    	var url = $scope.url.substring(0, $scope.url.lastIndexOf("."))
+    	$scope.codeview = !$scope.codeview;
+    	$scope.loadingMessage = "Loading..." + url + ". Uploaded files take longer!"
+    	$timeout(function() {
+    		$scope.loadingMessage = '';
+ 			}, 3000);
+    }
 
 		$scope.urlHarRequest = function(url){
-			$scope.showContentTypeStats = false;
-			$scope.loadingMessage = "Your request is on it's way! Constructing .HAR Data for " + url;
-			url = addhttp(url);
-			$scope.loading = dashboardService.urlHarRequest(url).then(function(d) {
-				$scope.showSidebar = true;
-				$scope.loadingMessage = "";	
-				$scope.rawData = d;
-				$scope.valueAccessor = $scope.accessors.value;
-				$scope.contentTypeAccessor = $scope.accessors.packageName;
-      	var data = addDataIdentifiers(d);
-        $scope.data = cleanseHarService.cleanseHarData(data);
-      	$scope.url = removehttp(url) + ".har";
-        $scope.urlRequest = '';			
-    	}, function(error) {
-    		if(error) {
-    			$scope.showSidebar = false;
-					$scope.data = {children: [{packageName: '', className: '', value: 0}]}
-	      	$scope.loadingMessage = "Invalid URL! Please try another URL."
-	        $scope.urlRequest = '';	
-				} 
-    	});
+			if(url.indexOf('.') !== -1 || url.length < 4) {
+				$scope.showContentTypeStats = false;
+				$scope.loadingMessage = "Your request is on it's way! Constructing .HAR Data for " + url;
+				url = addhttp(url);
+				$scope.loading = dashboardService.urlHarRequest(url).then(function(d) {
+					$scope.showSidebar = true;
+					$scope.loadingMessage = "";	
+					$scope.rawData = d;
+					$scope.valueAccessor = $scope.accessors.value;
+					$scope.contentTypeAccessor = $scope.accessors.packageName;
+	      	var data = addDataIdentifiers(d);
+	        $scope.data = cleanseHarService.cleanseHarData(data);	     
+	      	$scope.url = removehttp(url) + ".har";
+	        $scope.urlRequest = '';			
+	    	}, function(error) {
+	    		if(error) {
+	    			$scope.showSidebar = false;
+						$scope.data = {children: [{packageName: '', className: '', value: 0}]}
+						$scope.requestData = ''
+		      	$scope.loadingMessage = "Invalid URL! Please try another URL."
+		        $scope.urlRequest = '';	
+					}
+				});	
+			} else {
+        $scope.showSidebar = false;
+				$scope.data = {children: [{packageName: '', className: '', value: 0}]}
+      	$scope.loadingMessage = "Invalid URL! Please try another URL."
+        $scope.urlRequest = '';		
+			}
     };
 
 		$scope.uploadedHarData = function(d) {
+			$scope.tooltip.style("visibility", "hidden");
 			if(validateJSON(d)) {
 		  	$scope.rawData = JSON.parse(d);
 				$scope.showContentTypeStats = false;
 				$scope.valueAccessor = $scope.accessors.value;
 				$scope.contentTypeAccessor = $scope.accessors.packageName;
 				var data = addDataIdentifiers(JSON.parse(d));
-				$scope.data = cleanseHarService.cleanseHarData(data);
+				$scope.data = cleanseHarService.cleanseHarData(data);	
 				$scope.url = removehttp(document.getElementById("uploadHar").value);
 				$scope.harJson = '';
 	    	$scope.showSidebar = true;
@@ -51,6 +71,7 @@
     };
  
 	  $scope.pastedHarData = function(data){
+	  	$scope.tooltip.style("visibility", "hidden");
 	  	if(validateJSON(data)) {
 	  		$scope.loadingMessage = "Building .HAR Data from your pasted JSON";
 	  		var data = JSON.parse(data)
@@ -64,7 +85,7 @@
 					$scope.valueAccessor = $scope.accessors.value;
 					$scope.contentTypeAccessor = $scope.accessors.packageName;
 	      	var data = addDataIdentifiers(d);
-	        $scope.data = cleanseHarService.cleanseHarData(data); 
+	        $scope.data = cleanseHarService.cleanseHarData(data);    
 	        $scope.harJson = '';
 	      	$scope.showSidebar = true;
 	    	});
@@ -116,7 +137,7 @@
 	  	}
 			$scope.contentTypeAccessor = typeStr;
 			var data = addDataIdentifiers($scope.rawData);
-	    $scope.data = cleanseHarService.cleanseHarData(data); 
+	    $scope.data = cleanseHarService.cleanseHarData(data);
 	  };
 
 	  //functions

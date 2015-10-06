@@ -5,7 +5,8 @@
     return {
       scope: {
         data: '=',
-        labelAccessor: '='
+        labelAccessor: '=',
+        tooltip: '='
       },
       link: function ($scope, elem, attrs) {
 
@@ -43,6 +44,8 @@
           .sort(null)
           .size([diameter, diameter])
           .padding(1.5);
+
+        $scope.tooltip = tooltip;
 
         function updateChart(is_resize) {
           tooltip.style("visibility", "hidden");
