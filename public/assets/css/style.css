@@ -167,16 +167,23 @@ input[type="file"] {
 	cursor: pointer;
 }
 .menu-selector {
-	flex-grow: 1;
-	width: 10%;
-	height: 100%;
 	margin: 5px auto;
+}
+.menu-selector a{
+	text-decoration: none;
 	cursor: pointer;
+	color: #e8ca14;
+}
+.dropdown-menu {
+	background-color: #D9D9D9;
+}
+.dropdown-menu li > a:hover,
+.dropdown-menu li > a:focus {
+	cursor: pointer;
+	background-color: #2C2C2C;
+	color: #e8ca14;
 }
 .loadinggif {
-	flex-grow: 1;
-	width: 10%;
-	height: 100%;
 	margin: 4px auto;
 }
 
@@ -203,11 +210,16 @@ input[type="file"] {
 .code-toggle {
 	width: 20px;
 	padding-left: 8px;
-	flex-grow: 1;
 }
 .url-name {
-	flex-grow: 1;
+	width: 100%;
 	font-weight: bold;
+	text-align: center;
+	border-bottom: 2px solid #e8ca14;
+}
+.content-type {
+	font-weight: bold;
+	text-align: center;
 }
 .g-stats {
 	width: 100%;
@@ -231,13 +243,13 @@ input[type="file"] {
 }
 .g-main h1 {
 	margin: 3px;
-	font-size: 18px;
-	font-weight: 600;
+	font-size: 16px;
+	font-weight: 400;
 }
 .g-main-panel {
 	align-self: flex-start;
-	background-color: rgba(50, 50, 50, .9);
-	color: rgba(255, 255, 255, .8);
+	background-color: #2C2C2C;
+	color: #e8ca14;
 	width: 44%;
 	height: 50px;
 	margin: 2%;
@@ -273,12 +285,12 @@ input[type="file"] {
 	height: 100%;
 	margin-left: 4px;
 }
-.g-selections a {
+.g-selections a{
 	cursor: pointer;
 	text-decoration: none;
 	color: #2C2C2C;
 }
-.g-selections a:hover {
+.g-selections a:hover{
 	color: black;
 	font-weight: bold;
 }
@@ -314,22 +326,57 @@ input[type="file"] {
 	width: 100%;
 	height: 100%;
 }
-.code-view {
-	margin: 0 auto;
-	padding: 15px;
+.loading-message {
+	width: 100%;
+	height: 30px;
+	margin: 0px auto;
+	text-align: center;
 }
-.code-view pre {
+.loading-message p {
+	font-size: 18px;
+	font-weight: 500;
+	color: #2C2C2C;
+	border-bottom: 2px solid #e8ca14;
+	display:inline; 
+
+}
+.inner-bubble-display {
+	width: 100%;
+	height: 100%;
+	margin: 10px 0px;
+	display: -webkit-flex;
+	display: flex;
+	-webkit-flex-flow: flex-direction;
+	flex-flow: flex-direction;	
+	-webkit-justify-content: center;
+	justify-content: center;
+	align-items: center;
+}
+.code-view {
+	align-self: flex-start;
+	padding: 15px;
+	width: 100%;
+	height: 100%;
+}
+.code-view pre{
 	background-color: #D9D9D9;
 	font-size: 11px;
 	border: none;
 }
 /*bubble-display*/
 .bubble-chart {
+	align-self: flex-start;
 	margin: 0 auto;
-	width: 800px;
-	height: 800px;
+	width: 100%;
+	height: 100%;
 }
-
+.bubble-chart a{
+	color: #e8ca14 !important;
+}
+.bubble {
+	display: block;
+	margin: 0 auto;
+}
 
 
 

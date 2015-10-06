@@ -6,7 +6,6 @@
       scope: {
         data: '='
       },
-      template: "<div class='center-block chart'><label class='chartSort'><input class='chartInput' type='checkbox' />Sort</label></div>",
       link: function ($scope, elem, attrs) {
       //   console.log($scope.data);
       //   var data = $scope.data.barChart;

@@ -109,7 +109,7 @@ module.exports.buildHarFile = function(address) {
           startReply: null,
           endReply: null
         };
-        console.log('requested: ' + JSON.stringify(req, undefined, 4));
+        // console.log('requested: ' + JSON.stringify(req, undefined, 4));
 	    };
 	    page.onResourceReceived = function (res) {
         if (res.stage === 'start') {
@@ -118,12 +118,12 @@ module.exports.buildHarFile = function(address) {
         if (res.stage === 'end') {
           page.resources[res.id].endReply = res;
         }
-        console.log('received: ' + JSON.stringify(res, undefined, 4));
+        // console.log('received: ' + JSON.stringify(res, undefined, 4));
 	    };
 	    page.open(page.address, function (status) {
         var har;
         if (status !== 'success') {
-          console.log('FAIL to load the address');
+          // console.log('FAIL to load the address');
           ph.exit(1);
         } else {
           page.endTime = new Date();
@@ -131,13 +131,13 @@ module.exports.buildHarFile = function(address) {
               return document.title;
           });
           har = createHAR(page.address, page.title, page.startTime, page.resources);
-          console.log(JSON.stringify(har, undefined, 4));
+          // console.log(JSON.stringify(har, undefined, 4));
           ph.exit();
         }
     	}); //end of page.open
 	  }); //end of createpage()
   }).then(function(har) {
-    console.log('then har!')
+    // console.log('then har!')
     deferred.resolve(har);
   }).catch(function(har) {
     deferred.reject(har);

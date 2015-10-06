@@ -8,10 +8,10 @@
 			<div class="menu-input-holder">
 				<div class="menu-input">
 					<!-- 	Input URL -->
-					<div class="menu-input-type" ng-show="menuInputUrl">
+					<div class="menu-input-type" ng-show="input_type === 1">
 						<form>
 							<div class="demo-request input-group">
-								<input type="text" class="form-control" placeholder="Enter URL for .HAR Data" name="url" ng-model="urlRequest" />
+								<input type="text" class="form-control" placeholder="Enter URL" name="url" ng-model="urlRequest" />
 								<span class="input-group-btn">
 									<button class="btn" type="submit" ng-click="urlHarRequest(urlRequest)">ANALYZE</button>
 								</span>
@@ -19,26 +19,33 @@
 						</form>
 					</div>
 					<!-- File Uploader -->
-					<div class="menu-input-type" ng-show="menuInputUpload">
+					<div class="menu-input-type" ng-show="input_type === 2">
 						<label class="uploader">
 							<input type="file" id="uploadHar" on-read-file="uploadedHarData($fileContent)" />
 							<i></i><span class="btn">Upload .Har File</span>
 						</label>
 					</div>
 					<!-- Copy/ Paste -->
-					<div class="menu-input-copypaste" ng-show="menuInputCopypaste">
+					<div class="menu-input-copypaste" ng-show="input_type === 3">
 						<form class="textbox">
-							<textarea auto-focus id="textfocus" class="form-control" rows="1" ng-model="harJson" placeholder="Paste .HAR Data"></textarea>
+							<textarea auto-focus id="textfocus" class="form-control" rows="1" ng-model="harJson" placeholder="Paste .HAR JSON"></textarea>
 							<span class="input-group-btn textbtn">
 								<button auto-focus id="btnfocus" class="btn" type="submit" ng-click="pastedHarData(harJson)">ANALYZE</button>
 							</span>
 						</form>
 					</div>
 				</div>
-				<div class="menu-selector" ng-show="!loadHar">
-					<span class="glyphicon glyphicon-menu-hamburger" ng-click="harInputOptions()"style="color: #e8ca14; font-size:26px;"></span>
+				<div class="dropdown menu-selector" ng-show="!loading || loading.$$state.status">
+				  <a class="glyphicon glyphicon-menu-hamburger dropdown-toggle" data-toggle="dropdown" style="color: #e8ca14; font-size:26px;"></span>
+				  </a>
+				  <ul class="dropdown-menu pull-right">
+				    <li><a ng-click="input_type = 1">URL</a></li>
+				    <li><a ng-click="input_type = 2">Upload File</a></li>
+				    <li><a ng-click="input_type = 3">Paste JSON</a></li>
+				  </ul>
 				</div>
-				<div class="loadinggif" ng-show="loadHar">
+
+				<div class="loadinggif" ng-show="loading && !loading.$$state.status">
 					<img src="../../assets/images/search-load.gif" height="29" width="29" />
 				</div>
 			</div>
@@ -50,44 +57,45 @@
 	<div class="sidebar" ng-show="showSidebar">
 		<div class="site-analyzed" ng-click="codeview = !codeview">
 			<div class="code-toggle">
-				<span class="glyphicon glyphicon-console" style="color: #262626; font-size:15px;">
-				</span>
+				<i class="fa fa-file-code-o" style="color: #262626; font-size:15px;">
+				</i>
 			</div>
 			<div class="url-name">{{url}}</div>
 		</div>
+		<div class="content-type">{{contentTypeAccessor | capitalize}} Requests</div>
 		<div class="g-stats">
 			<div class="g-main">
 				<div class="g-main-panel">
 					<p>Total Size</p>
-					<h1>{{data.childrenStats.totalSize}}</h1>
+					<h1>{{data.childrenStats.totalSize | ifEmpty:0}}</h1>
 				</div>
 				<div class="g-main-panel">
 					<p>Total Time</p>
-					<h1>{{data.childrenStats.totalTime}}</h1>
+					<h1>{{data.childrenStats.totalTime | ifEmpty:0}}</h1>
 				</div>
 				<div class="g-main-panel">
 					<p>Avg. Req. Size</p>
-					<h1>{{data.childrenStats.avgReqSize}}</h1>
+					<h1>{{data.childrenStats.avgReqSize | ifEmpty:0}}</h1>
 				</div>
 				<div class="g-main-panel">
 					<p>Avg. Req. Time</p>
-					<h1>{{data.childrenStats.avgReqTime}}</h1>
+					<h1>{{data.childrenStats.avgReqTime | ifEmpty:0 }}</h1>
 				</div>
-				<div class="g-main-panel g-group" ng-show="gPercent">
+				<div class="g-main-panel g-group" ng-show="showContentTypeStats">
 					<p>% Total Size</p>
-					<h1>{{data.childrenStats.percOfGlobalSize}}</h1>
+					<h1>{{data.childrenStats.percOfGlobalSize | number:2 | ifEmpty:0}}%</h1>
 				</div>
-				<div class="g-main-panel g-group" ng-show="gPercent">
+				<div class="g-main-panel g-group" ng-show="showContentTypeStats">
 					<p>% Total Time</p>
-					<h1>{{data.childrenStats.percOfGlobalTime}}</h1>
+					<h1>{{data.childrenStats.percOfGlobalTime | number:2 | ifEmpty:0}}%</h1>
 				</div>
 			</div>
 			<div class="g-other">
 				<div class="g-other-panel">
-					<p><strong>{{data.childrenStats.numOfRequests}}</strong> Requests</p>
-					<p><strong>{{data.childrenStats.numRequestsByOthers}}</strong> Requests initiated by Requests</p>
-					<p><strong>N/A</strong> Non-expiring headers</p>
-					<p><strong>{{data.childrenStats.totalCookies}}</strong> Cookies </p>
+					<p><strong>{{data.childrenStats.numOfRequests | ifEmpty:0}}</strong> Requests</p>
+					<p><strong>{{data.childrenStats.numRequestsByOthers | ifEmpty:0}}</strong> Requests initiated by Requests</p>
+					<p><strong>{{data.childrenStats.nonExpiredHeaders | ifEmpty:'N/A'}}</strong> Non-expiring headers</p>
+					<p><strong>{{data.childrenStats.totalCookies | ifEmpty:0}}</strong> Cookies </p>
 				</div>
 			</div>
 			<div class="g-stats-chart">
@@ -99,31 +107,57 @@
 				<h1><strong>Filters & Selections</strong></h1>
 				<div class="filters-selections"></div>
 					<h3>Label Value</h3>
-						<p><a>Name</a></p>
-						<p><a>Content-Type</a></p>
+						<p><a ng-click="setLabelAccessor(accessors.className)">Name </a><i ng-show="labelSelected==='className'" class="fa fa-check" style="color: #2C2C2C; font-size:12px;"></i></p>
+						<p><a ng-click="setLabelAccessor(accessors.className2)">Content-Type </a><i ng-show="labelSelected==='classNameCt'" class="fa fa-check" style="color: #2C2C2C; font-size:12px;"></i></p>
+						<p><a ng-click="setLabelAccessor(accessors.className3)">Content-Size </a><i ng-show="labelSelected==='classNameCs'" class="fa fa-check" style="color: #2C2C2C; font-size:12px;"></i></p>
 				<div class="filters-selections">
 					<h3>Radius Value</h3>
-						<p><a>Size of Request</a></p>
-						<p><a>Load Time</a></p>
+						<p><a ng-click="setValueAccessor(accessors.value)">Total Load Time </a><i ng-show="valueAccessor==='time'"class="fa fa-check" style="color: #2C2C2C; font-size:12px;"></i></p>
+						<p><a ng-click="setValueAccessor(accessors.value2)">Content-Size </a><i ng-show="valueAccessor==='rawContentSize'" class="fa fa-check" style="color: #2C2C2C; font-size:12px;"></i></p>
+						<!-- 				<p><a ng-click="setValueAccessor(accessors.value3)">Request Sent (Time)</a><i ng-show="valueAccessor==='semd'"class="fa fa-check" style="color: #2C2C2C; font-size:12px;"></i></p> -->
+						<p><a ng-click="setValueAccessor(accessors.value4)">Request Wait (Time) </a><i ng-show="valueAccessor==='wait'"class="fa fa-check" style="color: #2C2C2C; font-size:12px;"></i></p>
+						<p><a ng-click="setValueAccessor(accessors.value5)">Request Received (Time) </a><i ng-show="valueAccessor==='receive'"class="fa fa-check" style="color: #2C2C2C; font-size:12px;"></i></p>
 				</div>
 				<div class="filters-selections">
 					<h3>By Content-Type</h3>
-						<p><a>All ({{data.globalStats.numOfRequests}})</a></p>
-						<p><a>Document ({{data.globalStats.numOfDocuments}})</a></p>
-						<p><a>Script ({{data.globalStats.numOfScripts}})</a></p>
-						<p><a>XHR ({{data.globalStats.numOfXhr}})</a></p>
-						<p><a>CSS ({{data.globalStats.numOfCss}})</a></p>
-						<p><a>Font ({{data.globalStats.numOfFont}})</a></p>
-						<p><a>Image ({{data.globalStats.numOfImages}})</a></p>
-						<p><a>Other ({{data.globalStats.numOfOther}})</a></p>
+						<p><a ng-click="setContentTypeAccessor(accessors.packageName)">All ({{data.globalStats.numOfRequests | ifEmpty:0}}) </a><i ng-show="contentTypeAccessor==='all'" class="fa fa-check" style="color: #2C2C2C; font-size:12px;"></i></p>
+						<p><a ng-click="setContentTypeAccessor(accessors.packageName2)">Document ({{data.globalStats.numOfDocuments | ifEmpty:0}}) </a><i ng-show="contentTypeAccessor==='document'" class="fa fa-check" style="color: #2C2C2C; font-size:12px;"></i></p>
+						<p><a ng-click="setContentTypeAccessor(accessors.packageName3)">Script ({{data.globalStats.numOfScripts | ifEmpty:0}}) </a><i ng-show="contentTypeAccessor==='script'" class="fa fa-check" style="color: #2C2C2C; font-size:12px;"></i></p>
+						<p><a ng-click="setContentTypeAccessor(accessors.packageName4)">XHR ({{data.globalStats.numOfXhr | ifEmpty:0}}) </a><i ng-show="contentTypeAccessor==='xhr'" class="fa fa-check" style="color: #2C2C2C; font-size:12px;"></i></p>
+						<p><a ng-click="setContentTypeAccessor(accessors.packageName5)">CSS ({{data.globalStats.numOfCss | ifEmpty:0}}) </a><i ng-show="contentTypeAccessor==='css'" class="fa fa-check" style="color: #2C2C2C; font-size:12px;"></i></p>
+						<p><a ng-click="setContentTypeAccessor(accessors.packageName6)">Font ({{data.globalStats.numOfFont | ifEmpty:0}}) </a><i ng-show="contentTypeAccessor==='font'" class="fa fa-check" style="color: #2C2C2C; font-size:12px;"></i></p>
+						<p><a ng-click="setContentTypeAccessor(accessors.packageName7)">Image ({{data.globalStats.numOfImages | ifEmpty:0}}) </a><i ng-show="contentTypeAccessor==='image'" class="fa fa-check" style="color: #2C2C2C; font-size:12px;"></i></p>
+						<p><a ng-click="setContentTypeAccessor(accessors.packageName8)">Other ({{data.globalStats.numOfOther | ifEmpty:0}}) </a><i ng-show="contentTypeAccessor==='other'" class="fa fa-check" style="color: #2C2C2C; font-size:12px;"></i></p>
 				</div>
 			</div>
 		</div>
 	</div> <!-- end of sidebar -->
 	<div class="har-bubble-display">
-		<bubble-chart data='data' ng-show="!codeview" class="bubbleChart"></bubble-chart>
-		<div class="code-view" ng-show="codeview">
-			<pre>{{data | json}}</pre>
+		<div class="loading-message"><p>{{loadingMessage}}</p></div>
+		<div class="inner-bubble-display">
+			<bubble-chart data='data' label-accessor="labelAccessor" ng-show="!codeview" class="bubble-chart"></bubble-chart>
+			<div class="code-view" ng-show="codeview">
+				<pre>{{rawData | json}}</pre>
+			</div>
+
 		</div>
 	</div>
 </div> <!-- end of display -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -5,7 +5,7 @@ var bodyParser = require('body-parser');
 var port = 8081;
 
 //Server-Side Controllers
-var urlHarCntrl = require('./api/Controllers/UrlHarCntrl');
+var urlHarController = require('./api/Controllers/UrlHarController');
 
 // var urlHarController = require('./api/Controllers/UrlHarController');
 var pastedHarController = require('./api/Controllers/PastedHarController');
@@ -17,27 +17,9 @@ app.use(bodyParser.json({limit: '50mb'}));
 //Static Files
 app.use(express.static(__dirname+'/public'));
 
-
-
-
-
-
-
-
-
-
-
-
 //Endpoints
-app.post('/api/urlrequest', urlHarCntrl.buildHarFile)
-// app.post('/api/urlrequest', urlHarController.buildHarFile)
+app.post('/api/urlrequest', urlHarController.buildHarFile)
 app.post('/api/pasted', pastedHarController.create)
-
-
-
-
-
-
 
 //Port
 app.listen(port);

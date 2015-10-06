@@ -1,59 +1,57 @@
 (function(){
 	'use strict';
 
-var app = angular.module('capture');
+  var app = angular.module('capture');
 
-	app.service('cleanseHarService', function($q){
+  app.service('cleanseHarService', function($q){
 
-		this.cleanseHarData = function(harData){
-     var deferred = $q.defer()
-      harData = extractData(harData)
-     deferred.resolve(harData);
-     return deferred.promise;
+  	this.cleanseHarData = function(harData){
+      console.log(harData)
+      return extractData(harData);
     };
 
     function extractData(harData) {
       var packageName = harData.packageName,
           className = harData.className,
           value = harData.value,
-          entries = harData.log.entries,
-          name = !harData.log.pages ? '' : harData.log.pages[0].title,
-          date = !harData.log.pages ? '' : harData.log.pages[0].startedDateTime;
+          log = harData.log || {},
+          entries = log.entries,
+          name = (log.pages[0] || {}).title || '',
+          date = (log.pages[0] || {}).startedDateTime || '';
       
       var globalArr = [], childrenArr = [], csTotalSize = 0, csTotalTime = 0, glTotalTime = 0, glTotalSize = 0, glTotalCookies = 0, csTotalCookies = 0, csTotalSend = 0, csTotalReceive = 0, csTotalWait = 0, csNumOfRequests = 0;
       var typeTable = {},
-        result = entries.map(function(d) {
-          //flatten each child (ch)
-          var ch = {};
-            //packageName
-            ch.type = getType(d.response.content.mimeType);
-            //className
-            ch.name = getEntryName(d.request.url.toString())
-            ch.contentSize = formatBytes(d.response.content.size, 2);
-            //value
-            ch.time = +d.time > 0 ? moment(d.time).valueOf() : 0;
-            ch.rawContentSize = +d.response.content.size; //content-size
-            ch.entrySize = getSize(d.response.status, d.response.headersSize, d.response.bodySize); //total entry size
-            //request
-            ch.method = d.request.method;
-            ch.url = d.request.url;
-            //response 
-            ch.send = getSend(d.timings);
-            ch.receive = getReceive(d.timings);
-            ch.wait = getWait(d.timings);
-            //other timings
-            ch.startedTime = new Date(d.startedDateTime).getTime();
-            ch.latency = getLatency(d.time, d.timings.receive);
-            ch.endTime = getEndTime(d.startedDateTime, d.time);
-            // ch.blocked = d.timings.blocked && d.timings.blocked !== -1 ? +d.timings.blocked : 0;
-            // ch.dns = d.timings.dns && d.timings.dns !== -1 ? +d.timings.dns : 0;
-            // ch.connect = d.timings.connect && d.timings.connect !== -1 ? +d.timings.connect :0;
-            // ch.ssl = d.timings.ssl && d.timings.ssl !== -1 ? +d.timings.ssl :0;
-            //other
-            ch.reqHeadersCount = +(d.request.headers.length || 0);
-            ch.resHeadersCount = +(d.response.headers.length || 0);
-            // ch.nonExpiringCookies = getNonExpiringCookies(d.request.cookies, d.response.cookies);
-            ch.cookies = +(d.request.cookies.length || 0) + +(d.response.cookies.length || 0);
+          result = entries.map(function(d) {
+        //flatten each child (ch)
+        var ch = {};
+          //packageName
+          ch.type = getType(d.response.content.mimeType);
+          //className
+          ch.name = getEntryName(d.request.url.toString())
+          ch.contentSize = formatBytes(d.response.content.size, 2);
+          //value
+          ch.time = +d.time > 0 ? moment(d.time).valueOf() : 0;
+          ch.rawContentSize = +d.response.content.size;
+          ch.entrySize = getSize(d.response.status, d.response.headersSize, d.response.bodySize); //total entry size
+          //request
+          ch.method = d.request.method;
+          ch.url = d.request.url;
+          //response 
+          ch.send = getSend(d.timings);
+          ch.receive = getReceive(d.timings);
+          ch.wait = getWait(d.timings);
+          //other timings
+          ch.startedTime = new Date(d.startedDateTime).getTime();
+          ch.latency = getLatency(d.time, d.timings.receive);
+          ch.endTime = getEndTime(d.startedDateTime, d.time);
+          ch.reqHeadersCount = +(d.request.headers.length || 0);
+          ch.resHeadersCount = +(d.response.headers.length || 0);
+          ch.cookies = +(d.request.cookies.length || 0) + +(d.response.cookies.length || 0);
+          // ch.nonExpiringCookies = getNonExpiringCookies(d.request.cookies, d.response.cookies);
+          // ch.blocked = d.timings.blocked && d.timings.blocked !== -1 ? +d.timings.blocked : 0;
+          // ch.dns = d.timings.dns && d.timings.dns !== -1 ? +d.timings.dns : 0;
+          // ch.connect = d.timings.connect && d.timings.connect !== -1 ? +d.timings.connect :0;
+          // ch.ssl = d.timings.ssl && d.timings.ssl !== -1 ? +d.timings.ssl :0;
           
           //count the content-type of each child
           if(!typeTable[ch.type]) {
@@ -75,18 +73,40 @@ var app = angular.module('capture');
             className: ch.name,
             classNameCs: ch.contentSize,
             classNameCt: ch.type,
-            value: ch.time,
-            valueRcs: ch.rawContentSize,
-            valueEs: ch.entrySize
+            contentSize: ch.contentSize,
+            url: ch.url
           }
+          //evaluate value
+          switch (value) {
+            case "time":
+              childrenObject.value = ch.time;
+              break;
+            case "rawContentSize":
+              childrenObject.value = ch.rawContentSize;
+              break;
+            case "send":
+              childrenObject.value = ch.send;
+              break;
+            case "receive":
+              childrenObject.value = ch.receive;
+              break;
+            case "wait":
+              childrenObject.value = ch.wait;
+              break;
+          };
+          //determine sizeValue to compute totalSize
+          var sizeValue = (ch.entrySize > ch.rawContentSize) ? ch.entrySize : ch.rawContentSize;
+          sizeValue = sizeValue > 0 ? sizeValue : 0
+          console.log('entry: ', ch.entrySize, 'rawContent:', ch.rawContentSize, '' )
+          //evaluate content-type
           if (packageName === "all" || packageName === ch.type) {
             //compute chilren stats
-            csTotalSize = csTotalSize + Number(ch.entrySize);
-            csTotalTime = csTotalTime + Number(ch.time);
-            csTotalCookies = csTotalCookies + Number(ch.cookies);
-            csTotalSend = csTotalSend + Number(ch.send);
-            csTotalReceive = csTotalReceive + Number(ch.receive);
-            csTotalWait = csTotalWait + Number(ch.wait);
+            csTotalSize = +csTotalSize + Number(sizeValue);
+            csTotalTime = +csTotalTime + Number(ch.time);
+            csTotalCookies = +csTotalCookies + Number(ch.cookies);
+            csTotalSend = +csTotalSend + Number(ch.send);
+            csTotalReceive = +csTotalReceive + Number(ch.receive);
+            csTotalWait = +csTotalWait + Number(ch.wait);
 
             if (ch.type === "script" || ch.type === "xhr") {
               csNumOfRequests++;
@@ -119,32 +139,36 @@ var app = angular.module('capture');
           numOfFont: +typeTable.font || 0,
           numOfImages: +typeTable.image || 0,
           numOfOther: +typeTable.other || 0,
-          // nonExpiredHeaders:
+          nonExpiredHeaders: null
         },
         childrenStats: {
           packageName: packageName,
-          totalSize: formatBytes(csTotalSize,2),
+          totalSize: formatBytes(csTotalSize, 2),
           totalTime: formatTime(csTotalTime),
-          avgReqSize: formatBytes(csTotalSize / childrenArr.length, 2),
-          avgReqTime: formatTime(csTotalTime / childrenArr.length),
-          percOfGlobalSize: ((csTotalSize / glTotalSize).toFixed(2) * 100) + "%",
-          percOfGlobalTime: ((csTotalTime / glTotalTime).toFixed(2) * 100) + "%",
+          avgReqSize: formatBytes(+csTotalSize / +childrenArr.length || 0, 2),
+          avgReqTime: formatTime(+csTotalTime / +childrenArr.length || 0),
+          percOfGlobalSize: ((csTotalSize / glTotalSize) * 100),
+          percOfGlobalTime: ((csTotalTime / glTotalTime) * 100),
           totalCookies: csTotalCookies,
           numOfRequests: childrenArr.length,
           numRequestsByOthers: csNumOfRequests,
-          avgSend: csTotalSend / childrenArr.length,
-          avgReceive: csTotalReceive / childrenArr.length,
-          avgWait: csTotalWait / childrenArr.length
-          // nonExpiredHeaders:
+          avgSend: +csTotalSend / +childrenArr.length || 0,
+          avgReceive: +csTotalReceive / +childrenArr.length || 0,
+          avgWait: +csTotalWait / +childrenArr.length || 0,
+          nonExpiredHeaders: null
         }
-      } //end of global
-      console.log('global', global)
+      }; //end of global
       return global;
     } //end of function
 
     function getSize(status, hSize, bSize) {
+      console.log(hSize, bSize)
       if (status === 304) return +hSize;
-      return Number(hSize) + Number(bSize);
+      if (!hSize && !bSize) {
+        return Number(hSize) + Number(bSize);
+      } else {
+        return 0;
+      }
     };    
     function getLatency(time, receive) {
       if (+time > 0 || receive !== undefined) return +time - +receive;
@@ -170,15 +194,6 @@ var app = angular.module('capture');
         return 0;
       }
     };
-    // function getNonExpiringCookies(reqCookies, resCookies) {
-    //   var count = 0
-    //   if (reqCookies > 0) {
-    //       //count non-expiring cookies
-    //   if (resCookies > 0) {
-    //       //count non-expiring cookies
-    //   }
-    //   return count;
-    // };
     function getType(type, url) {
       if (!type || type === undefined) {
         return 'other';
@@ -214,16 +229,16 @@ var app = angular.module('capture');
       return 'other';
     }
     function formatBytes(bytes,decimals) {
-      if(bytes == 0) return '0 Byte';
+      if(!bytes || bytes === undefined || bytes == 0) return '0 Byte';
       var k = 1000,
           dm = decimals + 1 || 3,
-          sizes = ['bytes', 'kb', 'mb', 'gb', 'tb', 'pb', 'eb', 'zb', 'yb'],
+          sizes = ['b', 'kb', 'mb', 'gb', 'tb', 'pb', 'eb', 'zb', 'yb'],
           i = Math.floor(Math.log(bytes) / Math.log(k));
-      return (bytes / Math.pow(k, i)).toPrecision(dm) + '' + sizes[i];
+      return (bytes / Math.pow(k, i)).toPrecision(dm) + ' ' + sizes[i];
     }
     function formatTime(milliseconds) {
       var time = new Date(milliseconds),
-          duration = time.getUTCSeconds() + "." + time.getUTCMilliseconds() + "ms";
+          duration = time.getUTCSeconds() + "." + time.getUTCMilliseconds() + " ms";
           return duration;
     };
     function getEntryName(str) {
@@ -235,3 +250,13 @@ var app = angular.module('capture');
 })(); 
 
 
+
+    // function getNonExpiringCookies(reqCookies, resCookies) {
+    //   var count = 0
+    //   if (reqCookies > 0) {
+    //       //count non-expiring cookies
+    //   if (resCookies > 0) {
+    //       //count non-expiring cookies
+    //   }
+    //   return count;
+    // };

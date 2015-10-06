@@ -28,15 +28,16 @@ var app = angular.module('capture');
     	url: '/api/urlrequest', 
     	data: { url: url }
     }).then(function(res) {
-    	var address = res.data[0].address, 
-    			title = res.data[0].title, 
-    			startTime = res.data[0].startTime, 
-    			endTime = res.data[0].endTime, 
-    			resources = res.data[0].resources,
+      var data = res.data[0] || {},
+          address = data.address || 'Invalid URL Request', 
+    			title = data.title || '', 
+    			startTime = data.startTime || '', 
+    			endTime = data.endTime || '', 
+    			resources = data.resources || [],
     			harData = createHar(address, title, startTime, endTime, resources);
-      deferred.resolve(harData);
+      deferred.resolve(harData);  
     }).catch(function(res) {
-      deferred.reject(res);
+      deferred.reject(res.status);
     });
     return deferred.promise;
 	};

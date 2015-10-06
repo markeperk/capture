@@ -1,113 +1,130 @@
 (function(){
 	'use strict';
 
-var app = angular.module('capture');
+	var app = angular.module('capture');
 
-	app.controller('dashboardCtrl', function($scope, dashboardService, cleanseHarService) {
+	app.controller('dashboardCtrl', function( $scope, dashboardService, cleanseHarService) {
 
-		var harInputOption = 1;
-	  $scope.harInputOptions = function() {
-      if (harInputOption === 1) {
-        $scope.menuInputUrl = true; 
-        $scope.menuInputUpload = false; 
-        $scope.menuInputCopypaste = false;
-        return harInputOption = 2;
-      };
-      if (harInputOption === 2) {
-       	$scope.menuInputUrl = false; 
-        $scope.menuInputUpload = true; 
-        $scope.menuInputCopypaste = false;
-        return harInputOption = 3;
-      };
-      if (harInputOption === 3) {
-       	$scope.menuInputUrl = false; 
-        $scope.menuInputUpload = false; 
-        $scope.menuInputCopypaste = true;
-        return harInputOption = 1;
-      };
-    }
-    $scope.harInputOptions();
-
+		$scope.input_type = 1;
     $scope.showSidebar = false;
 
 		$scope.urlHarRequest = function(url){
-			$scope.showSidebar = true;
-			$scope.url = "Building .har for " + url;
+			$scope.showContentTypeStats = false;
+			$scope.loadingMessage = "Building .har file for " + url;
+			console.log($scope.loadingMessage);
 			url = addhttp(url);
-			$scope.loadHar = !$scope.loadHar;
-			dashboardService.urlHarRequest(url)
-	      .then(function(data) {
-	      	data = addDataIdentifiers(data)
-	      	cleanseHarService.cleanseHarData(data)
-	      		.then(function(data) {
-			      	$scope.url = removehttp(url) + ".har";
-			      	$scope.loadHar = !$scope.loadHar;
-			      	$scope.jsonError = '';
-			        $scope.data = data; 
-			        $scope.urlRequest = '';	
-	      		});
-	    	});
+			$scope.loading = dashboardService.urlHarRequest(url).then(function(d) {
+				$scope.showSidebar = true;
+				$scope.loadingMessage = "";	
+				$scope.rawData = d;
+				$scope.valueAccessor = $scope.accessors.value;
+				$scope.contentTypeAccessor = $scope.accessors.packageName;
+      	var data = addDataIdentifiers(d);
+        $scope.data = cleanseHarService.cleanseHarData(data);
+      	$scope.url = removehttp(url) + ".har";
+        $scope.urlRequest = '';			
+    	}, function(error) {
+    		if(error) {
+    			$scope.showSidebar = false;
+					$scope.data = {children: [{packageName: '', className: '', value: 0}]}
+	      	$scope.loadingMessage = "Invalid URL. Try Again"
+	        $scope.urlRequest = '';	
+				} 
+    	});
     };
 
-		$scope.uploadedHarData = function(data) {
-			$scope.harJson = '';
-			data = addDataIdentifiers(JSON.parse(data));
-	    cleanseHarService.cleanseHarData(data).then(function(data) {
-	    	$scope.showSidebar = true;
+		$scope.uploadedHarData = function(d) {
+			if(validateJSON(d)) {
+		  	$scope.rawData = JSON.parse(d);
+				$scope.showContentTypeStats = false;
+				$scope.valueAccessor = $scope.accessors.value;
+				$scope.contentTypeAccessor = $scope.accessors.packageName;
+				var data = addDataIdentifiers(JSON.parse(d));
+				$scope.data = cleanseHarService.cleanseHarData(data);
 				$scope.url = removehttp(document.getElementById("uploadHar").value);
-				$scope.data = data;
-			});
+				$scope.harJson = '';
+	    	$scope.showSidebar = true;
+			} else {
+				$scope.showSidebar = false;
+				$scope.data = {children: [{packageName: '', className: '', value: 0}]}
+				$scope.loadingMessage = "Invalid .har file. Please Try Again."
+			}
     };
  
 	  $scope.pastedHarData = function(data){
 	  	if(validateJSON(data)) {
-	  		$scope.loadHar = !$scope.loadHar;
+	  		$scope.loadingMessage = "Building .har file from pasted JSON";
 	  		var data = JSON.parse(data)
-				if(data.log.pages.length === 0) { 
+				if(data || data.log || data.log.pages.length === 0) { 
 					$scope.url = "unnamed-data.har"
 				} else {
 					$scope.url = removehttp(data.log.pages[0].title) + ".har";
 				}
-		    dashboardService.pastedHarData(data)
-		      .then(function(data) {
-		      	$scope.showSidebar = true;
-		      	data = addDataIdentifiers(data)
-		      	cleanseHarService.cleanseHarData(data)
-		      		.then(function(data) {
-				      	$scope.loadHar = !$scope.loadHar;
-				        $scope.data = data; 
-				        $scope.harJson = '';
-				      });
-		    	});
+		    $scope.loading = dashboardService.pastedHarData(data).then(function(d) {
+		    	$scope.rawData = d;
+					$scope.valueAccessor = $scope.accessors.value;
+					$scope.contentTypeAccessor = $scope.accessors.packageName;
+	      	var data = addDataIdentifiers(d);
+	        $scope.data = cleanseHarService.cleanseHarData(data); 
+	        $scope.harJson = '';
+	      	$scope.showSidebar = true;
+	    	});
 	  	} else {
+	  		$scope.showSidebar = false;
 	  		$scope.url = "";
-	  		$scope.data = "";
-	  		$scope.url = "Invalid .har data";
+	  		$scope.data = {children: [{packageName: '', className: '', value: 0}]};
+	  		$scope.loadingMessage = "Invalid .har data. Please Try Again";
 	  	}
 	  }
 
-	  //selections
-		$scope.gPercent = false;
-	  $scope.packageName = function(packageName) {
-	  	//if someone selects something other than all.. then turn on addtional field
-	    data.requestedPackageName === "all" ? $scope.gPercent = true : $scope.gPercent = false;
+	  //selections & filters
 
+		$scope.accessors = {
+			className: function(d) { return d.className; },
+			className2: function(d) { return d.classNameCt; },
+			className3: function(d) { return d.classNameCs; },
+			value: "time", value2: "rawContentSize", value3: "send", value4: "wait", value5: "receive",
+			packageName: "all", packageName2: "document", packageName3: "script", packageName4: "xhr", packageName5: "css", packageName6: "font", packageName7: "image", packageName8: "other"
+		};
 
-	  }
-	  $scope.className = function(className) {
+		$scope.labelAccessor = $scope.accessors.className;
+		$scope.valueAccessor = $scope.accessors.value;
+		$scope.contentTypeAccessor = $scope.accessors.packageName;
+		$scope.labelSelected = 'className';
 
-	  }
-	  $scope.value = function(value) {
+		$scope.setLabelAccessor = function(labelFn) {
+			var lv = labelFn.toString(),
+			labelValue = lv.substring(lv.lastIndexOf(".") + 1, lv.lastIndexOf(";")).trim();
+			console.log('lv', lv);
+			console.log('labelvalue', labelValue)
+			$scope.labelSelected = labelValue;
+			$scope.labelAccessor = labelFn;
+		};
+			console.log($scope.labelSelected)
 
-	  }
+	  $scope.setValueAccessor = function(valueStr) {
+			$scope.valueAccessor = valueStr;
+			var data = addDataIdentifiers($scope.rawData);
+	    $scope.data = cleanseHarService.cleanseHarData(data); 
+	  };	  
 
-
+		$scope.showContentTypeStats = false;
+	  $scope.setContentTypeAccessor = function(typeStr) {
+	  	if (typeStr !== $scope.accessors.packageName) {
+	  		$scope.showContentTypeStats = true;
+	  	} else {
+	  		$scope.showContentTypeStats = false;
+	  	}
+			$scope.contentTypeAccessor = typeStr;
+			var data = addDataIdentifiers($scope.rawData);
+	    $scope.data = cleanseHarService.cleanseHarData(data); 
+	  };
 
 	  //functions
 
 	  function addDataIdentifiers(data) {
-	  	data.packageName = "all";
-	  	data.value = "time";
+	  	data.packageName = $scope.contentTypeAccessor;
+	  	data.value = $scope.valueAccessor;
 	  	data.className = "name";
 	  	return data;
 	  }
@@ -144,29 +161,3 @@ var app = angular.module('capture');
 
 
 
-
-
-
-
-
-
-
-// function extractBubbleData(arr) {
-// 	var bubbleArrData = [],
-// 			result = arr.map(function(k) {
-// 				var bubbleObjData = {}, name = k.request.url.toString();
-// 				if(name.lastIndexOf('/') === name.length - 1) {
-// 					var nUrl = name.slice(0, name.length - 1)
-// 					bubbleObjData.name = (nUrl.substring(nUrl.lastIndexOf('/') + 1, nUrl.length)).trim()
-// 				} else {
-// 					bubbleObjData.name = (name.substring(name.lastIndexOf('/') + 1, name.length)).trim()
-// 				}
-// 				bubbleObjData.time = moment(k.time).format('SSSS');
-// 				bubbleObjData.type = getType(k.response.content.mimeType);
-// 				bubbleObjData.size = k.response.content.size;
-// 				bubbleObjData.sizelabel = formatBytes(k.response.content.size, 2);
-// 				bubbleObjData.url = k.request.url.toString();
-// 				bubbleArrData.push(bubbleObjData);
-// 			})
-// 	console.log(bubbleArrData)
-// }

@@ -4,17 +4,20 @@
   .directive('bubbleChart', [function (){
     return {
       scope: {
-        data: '='
+        data: '=',
+        labelAccessor: '='
       },
       link: function ($scope, elem, attrs) {
 
         $scope.$watch("data", function(n, o) {
-          if(n !== o) {
-            updateChart();
-          }
+          if(n !== o) {updateChart(); }
         });
+        $scope.$watch("labelAccessor", function(n, o) {
+          if(n !== o) { updateChart(); }
+        });
+
         //definitions
-        var diameter = 800,  //mobile?
+        var diameter = 800,
             format = d3.format(",d"),
             color = d3.scale.category20c();
 
@@ -30,7 +33,8 @@
             .style("visibility", "hidden")
             .style("color", "white")
             .style("padding", "8px")
-            .style("background-color", "rgba(0, 0, 0, 0.75)")
+            .style("margin", "5px")
+            .style("background-color", "rgba(44, 44, 44, 0.8)")
             .style("border-radius", "6px")
             .style("font", "12px sans-serif")
             .text("tooltip");
@@ -40,12 +44,15 @@
           .size([diameter, diameter])
           .padding(1.5);
 
-        function updateChart() {
+        function updateChart(is_resize) {
+          tooltip.style("visibility", "hidden");
           var data = $scope.data;
           console.log(data);
-          if(data.children.length > 0) {
+          if(data && data.children.length > 0) {
             // packing.radius(sizeAccessors.time)
-            // packing.sort(filterAccessors.active)
+            // packing.sort(function(a, b) {
+            //     return -(b.value - a.value);
+            // })
 
             var node = svg.selectAll(".node")
                   .data(packing.nodes(data)
@@ -60,29 +67,39 @@
                 .append("circle")       
                   .style("fill", function(d) { return color(d.packageName); })
                   .on("mouseover", function(d) {
-                      tooltip.text(d.className + ": " + format(d.value));
+                      tooltip.html(
+                        "<a style='color: #e8ca14; ' target='_blank' href=" 
+                        + d.url + ">" + 
+                        d.className +
+                        "</a>" +                          
+                        "<br/>"  + d.packageName +
+                        "<br/>"  + d.contentSize)  
+                        .style("left", (d3.event.pageX) + "px")      
+                        .style("top", (d3.event.pageY - 28) + "px");
                       tooltip.style("visibility", "visible");
                   })
                   .on("mousemove", function() {
                       return tooltip.style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");
                   })
-                  .on("mouseout", function() {return tooltip.style("visibility", "hidden");})
+                  .on("mouseout", function() {return tooltip.style("visibility", "visible");})
                   .attr("r", function(d) { return d.r; });
 
             node.transition()
-                .duration(1000)
+                .duration(is_resize ? 0 : 1000)
                 .attr("transform", function (d) { return "translate(" + d.x + "," + d.y + ")"; });
 
             node.select("circle")
                 .transition()
-                .duration(1000)
+                .duration(is_resize ? 0 : 1000)
                 .attr("r", function (d) { return d.r; })
 
             node.append("text")
                 .attr("dy", ".3em")
                 .style("text-anchor", "middle")
                 .style("pointer-events", "none")
-                .text(function(d) { return d.className.substring(0, d.r / 3); });
+                .text(function(d) { 
+                  return $scope.labelAccessor(d).substring(0, d.r / 3); 
+                });
           } //end of if statement  
         } //end of update function
       } //end of link
@@ -90,16 +107,6 @@
   }]) //end of directive
 })();
 
-
-
-// var classNameAccessors = {
-//   name: function(d) { return d.request.url.toString(); },
-//   type: function(d) { return formatBytes(k.response.content.size, 2); }
-// };   
-// var valueAccessors = {
-//   time: function(d) { return +d.time; },
-//   size: function(d) { return +d.response.content.size; }
-// };
 
 
 
