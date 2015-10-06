@@ -6,17 +6,6 @@ html, body {
 	background-color: #F2F2F2;
 }
 
-/*body {
-	background: rgba(79,79,79,0.33);
-	background: -moz-linear-gradient(top, rgba(79,79,79,0.33) 0%, rgba(249,246,230,1) 100%);
-	background: -webkit-gradient(left top, left bottom, color-stop(0%, rgba(79,79,79,0.33)), color-stop(100%, rgba(249,246,230,1)));
-	background: -webkit-linear-gradient(top, rgba(79,79,79,0.33) 0%, rgba(249,246,230,1) 100%);
-	background: -o-linear-gradient(top, rgba(79,79,79,0.33) 0%, rgba(249,246,230,1) 100%);
-	background: -ms-linear-gradient(top, rgba(79,79,79,0.33) 0%, rgba(249,246,230,1) 100%);
-	background: linear-gradient(to bottom, rgba(79,79,79,0.33) 0%, rgba(249,246,230,1) 100%);
-	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#4f4f4f', endColorstr='#f9f6e6', GradientType=0 );
-}*/
-
 /*main*/
 
 .topbar {
@@ -38,7 +27,8 @@ html, body {
 	justify-content: flex-start;
 }
 
-/*selection bar*/
+/* selection bar */
+
 .menubar {
 	width: 100%;
 	height: 85px;
@@ -120,7 +110,6 @@ input[type="text"], input[type="email"], input[type="url"], input[type="password
   border-radius: 4px;
   -webkit-user-select: none;
 }
-
 .btn, button, input[type="button"], input[type="reset"], input[type="submit"] {
   color: rgba(0,0,0,0.8);
   height: auto;
@@ -188,6 +177,7 @@ input[type="file"] {
 }
 
 /*sidebar*/
+
 .sidebar {
 	flex-grow: 1;
 	align-self: flex-start;
@@ -315,9 +305,6 @@ input[type="file"] {
 .filters-selections {
 	width: 100%;
 	height: 100%;
-}
-.g-stats-chart {
-
 }
 .har-bubble-display {
 	flex-grow: 1;

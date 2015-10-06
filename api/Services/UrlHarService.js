@@ -1,5 +1,5 @@
 var q = require('q');
-// var phantom = require('phantom');
+var phantom = require('phantom');
 
 module.exports.buildHarFile = function(address) {
 	var address = address;
@@ -28,8 +28,6 @@ module.exports.buildHarFile = function(address) {
       if (!request || !startReply || !endReply) {
           return;
       }
-      // Exclude Data URI from HAR file because
-      // they aren't included in specification
       if (request.url.match(/(^data:image\/.*)/i)) {
           return;
 			}
@@ -109,7 +107,6 @@ module.exports.buildHarFile = function(address) {
           startReply: null,
           endReply: null
         };
-        // console.log('requested: ' + JSON.stringify(req, undefined, 4));
 	    };
 	    page.onResourceReceived = function (res) {
         if (res.stage === 'start') {
@@ -118,12 +115,10 @@ module.exports.buildHarFile = function(address) {
         if (res.stage === 'end') {
           page.resources[res.id].endReply = res;
         }
-        // console.log('received: ' + JSON.stringify(res, undefined, 4));
 	    };
 	    page.open(page.address, function (status) {
         var har;
         if (status !== 'success') {
-          // console.log('FAIL to load the address');
           ph.exit(1);
         } else {
           page.endTime = new Date();
@@ -131,13 +126,11 @@ module.exports.buildHarFile = function(address) {
               return document.title;
           });
           har = createHAR(page.address, page.title, page.startTime, page.resources);
-          // console.log(JSON.stringify(har, undefined, 4));
           ph.exit();
         }
     	}); //end of page.open
 	  }); //end of createpage()
   }).then(function(har) {
-    // console.log('then har!')
     deferred.resolve(har);
   }).catch(function(har) {
     deferred.reject(har);

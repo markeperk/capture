@@ -52,15 +52,13 @@
           var data = $scope.data;
           if(data && data.children.length > 0) {
             // packing.radius()
-            // packing.sort(function(a, b) {
-            //     return -(b.value - a.value);
-            // })
-
+            // packing.sort(function(a, b) {return -(b.value - a.value);})
             var node = svg.selectAll(".node")
                   .data(packing.nodes(data)
                   .filter(function(d) { return !d.children; }));
             
-            node.exit().transition().duration(0).remove()
+            node.exit().transition().duration(0).remove();
+            
             node.select("text").remove()
 
             node.enter().append("g")

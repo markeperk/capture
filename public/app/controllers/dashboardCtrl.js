@@ -4,7 +4,7 @@
 	var app = angular.module('capture');
 
 	app.controller('dashboardCtrl', function( $scope, $timeout, dashboardService, cleanseHarService) {
-
+		
 		$scope.input_type = 1;
     $scope.showSidebar = false;
   	$scope.codeview = true;
@@ -22,7 +22,7 @@
 		$scope.urlHarRequest = function(url){
 			if(url.indexOf('.') !== -1 || url.length < 4) {
 				$scope.showContentTypeStats = false;
-				$scope.loadingMessage = "Your request is on it's way! Constructing .HAR Data for " + url;
+				$scope.loadingMessage = "Your request is on it's way! Constructing .har data for " + url;
 				url = addhttp(url);
 				$scope.loading = dashboardService.urlHarRequest(url).then(function(d) {
 					$scope.showSidebar = true;
@@ -66,14 +66,14 @@
 			} else {
 				$scope.showSidebar = false;
 				$scope.data = {children: [{packageName: '', className: '', value: 0}]}
-				$scope.loadingMessage = "Invalid .HAR File! Please try another"
+				$scope.loadingMessage = "Invalid .har file! Please try another"
 			}
     };
  
 	  $scope.pastedHarData = function(data){
 	  	$scope.tooltip.style("visibility", "hidden");
 	  	if(validateJSON(data)) {
-	  		$scope.loadingMessage = "Building .HAR Data from your pasted JSON";
+	  		$scope.loadingMessage = "Creating .har data from your pasted JSON";
 	  		var data = JSON.parse(data)
 				if(data || data.log || data.log.pages.length === 0) { 
 					$scope.url = "unnamed-data.har"
@@ -93,7 +93,7 @@
 	  		$scope.showSidebar = false;
 	  		$scope.url = "";
 	  		$scope.data = {children: [{packageName: '', className: '', value: 0}]};
-	  		$scope.loadingMessage = "Invalid .HAR data. Please make sure it's proper .HAR formatted JSON";
+	  		$scope.loadingMessage = "Invalid .har data. Please make sure it's proper .har formatted JSON";
 	  	}
 	  }
 

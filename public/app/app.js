@@ -13,5 +13,4 @@ app.config(function($stateProvider, $urlRouterProvider) {
         controller  : 'dashboardCtrl'
       }); 
   });
-
 })();

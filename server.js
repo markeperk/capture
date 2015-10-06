@@ -2,12 +2,10 @@
 var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
-var port = 8081;
+var port = 8080;
 
 //Server-Side Controllers
 var urlHarController = require('./api/Controllers/UrlHarController');
-
-// var urlHarController = require('./api/Controllers/UrlHarController');
 var pastedHarController = require('./api/Controllers/PastedHarController');
 
 //BodyParser

@@ -29,12 +29,12 @@ var app = angular.module('capture');
     	data: { url: url }
     }).then(function(res) {
       var data = res.data[0] || {},
-          address = data.address || 'Invalid URL Request', 
-    			title = data.title || '', 
-    			startTime = data.startTime || '', 
-    			endTime = data.endTime || '', 
-    			resources = data.resources || [],
-    			harData = createHar(address, title, startTime, endTime, resources);
+        address = data.address || 'Invalid URL Request', 
+  			title = data.title || '', 
+  			startTime = data.startTime || '', 
+  			endTime = data.endTime || '', 
+  			resources = data.resources || [],
+  			harData = createHar(address, title, startTime, endTime, resources);
       deferred.resolve(harData);  
     }).catch(function(res) {
       deferred.reject(res.status);

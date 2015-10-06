@@ -1,7 +1,6 @@
 var q = require('q');
 var phantom = require('phantom');
 
-
 module.exports.buildHarFile = function(req, res) {
 	var address = req.body.url, harFile = [];
   console.log('ss.address', address)

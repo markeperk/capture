@@ -50,6 +50,7 @@
           ch.reqHeadersCount = +(d.request.headers.length || 0);
           ch.resHeadersCount = +(d.response.headers.length || 0);
           ch.cookies = +(d.request.cookies.length || 0) + +(d.response.cookies.length || 0);
+          //others for later
           // ch.nonExpiringCookies = getNonExpiringCookies(d.request.cookies, d.response.cookies);
           // ch.blocked = d.timings.blocked && d.timings.blocked !== -1 ? +d.timings.blocked : 0;
           // ch.dns = d.timings.dns && d.timings.dns !== -1 ? +d.timings.dns : 0;
@@ -111,7 +112,6 @@
               childrenObject.value = ch.wait;
               break;
           };
-
           //determine sizeValue to compute totalSize
           var sizeValue = (ch.entrySize > ch.rawContentSize) ? ch.entrySize : ch.rawContentSize;
           sizeValue = sizeValue > 0 ? sizeValue : 0
@@ -126,14 +126,13 @@
             csTotalReceive = +csTotalReceive + Number(ch.receive);
             csTotalWait = +csTotalWait + Number(ch.wait);
             csStatusCount = +csStatusCount + getStatusCount(ch.status);
-
             if (ch.type === "script" || ch.type === "xhr") {
               csNumOfRequests++;
             };
-            //create children array
+            //build on children array
             childrenArr.push(childrenObject)
-          } //end of child if
-      }) //end of entry map
+          };
+      }); //end of entry map
 
       var global = {
         name: name,
@@ -185,7 +184,8 @@
         }
       }; //end of global
       return global;
-    } //end of function
+    } //end of extract data function
+
     function getStatusCount(status) {
       if(status !== 200) return 1;
       return 0;
@@ -278,13 +278,14 @@
 })(); 
 
 
+//for later
 
-    // function getNonExpiringCookies(reqCookies, resCookies) {
-    //   var count = 0
-    //   if (reqCookies > 0) {
-    //       //count non-expiring cookies
-    //   if (resCookies > 0) {
-    //       //count non-expiring cookies
-    //   }
-    //   return count;
-    // };
+// function getNonExpiringCookies(reqCookies, resCookies) {
+//   var count = 0
+//   if (reqCookies > 0) {
+//       //count non-expiring cookies
+//   if (resCookies > 0) {
+//       //count non-expiring cookies
+//   }
+//   return count;
+// };
