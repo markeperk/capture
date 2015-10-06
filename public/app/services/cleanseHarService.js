@@ -6,7 +6,6 @@
   app.service('cleanseHarService', function($q){
 
   	this.cleanseHarData = function(harData){
-      console.log(harData)
       return extractData(harData);
     };
 
@@ -17,10 +16,13 @@
           log = harData.log || {},
           entries = log.entries,
           name = (log.pages[0] || {}).title || '',
-          date = (log.pages[0] || {}).startedDateTime || '';
-      
-      var globalArr = [], childrenArr = [], csTotalSize = 0, csTotalTime = 0, glTotalTime = 0, glTotalSize = 0, glTotalCookies = 0, csTotalCookies = 0, csTotalSend = 0, csTotalReceive = 0, csTotalWait = 0, csNumOfRequests = 0;
-      var typeTable = {},
+          date = (log.pages[0] || {}).startedDateTime || '',
+          id = (log.pages[0] || {}).id || '',
+          domContentLoaded = ((log.pages[0] || {}).pageTimings || {}).onContentLoad || null,
+          onLoad = ((log.pages[0] || {}).pageTimings || {}).onLoad || 0;
+
+      var globalArr = [], childrenArr = [], csTotalSize = 0, csTotalTime = 0, glTotalTime = 0, glTotalSize = 0, glTotalCookies = 0, csTotalCookies = 0, csTotalSend = 0, csTotalReceive = 0, csTotalWait = 0, csNumOfRequests = 0, glStatusCount = 0, csStatusCount = 0;
+      var typeTable = {}, statusTable = {},
           result = entries.map(function(d) {
         //flatten each child (ch)
         var ch = {};
@@ -37,9 +39,10 @@
           ch.method = d.request.method;
           ch.url = d.request.url;
           //response 
-          ch.send = getSend(d.timings);
-          ch.receive = getReceive(d.timings);
-          ch.wait = getWait(d.timings);
+          ch.status = getStatus(d.response.status);
+          ch.send = getSend(d.timings.send);
+          ch.receive = getReceive(d.timings.receive);
+          ch.wait = getWait(d.timings.wait);
           //other timings
           ch.startedTime = new Date(d.startedDateTime).getTime();
           ch.latency = getLatency(d.time, d.timings.receive);
@@ -59,10 +62,17 @@
           } else {
             typeTable[ch.type]++;
           }
+          //count the status type and value of each child
+          if(!statusTable[ch.status]) {
+            statusTable[ch.status] = 1;
+          } else {
+            statusTable[ch.status]++;
+          }
           //compute global stats
           glTotalSize = glTotalSize + Number(ch.entrySize);
           glTotalTime = glTotalTime + Number(ch.time);
           glTotalCookies = glTotalCookies + Number(ch.cookies);
+          glStatusCount = +glStatusCount + getStatusCount(ch.status);
 
           //create global array
           globalArr.push(ch) 
@@ -73,8 +83,15 @@
             className: ch.name,
             classNameCs: ch.contentSize,
             classNameCt: ch.type,
+            classNameMs: ch.method + ': ' + ch.status,
             contentSize: ch.contentSize,
-            url: ch.url
+            url: ch.url,
+            time: formatTime(ch.time),
+            latency: formatTime(ch.latency),
+            send: ch.send.toFixed(5) + ' ms',
+            wait: formatTime(ch.wait),
+            receive: formatTime(ch.receive),
+            status: ch.status
           }
           //evaluate value
           switch (value) {
@@ -94,10 +111,11 @@
               childrenObject.value = ch.wait;
               break;
           };
+
           //determine sizeValue to compute totalSize
           var sizeValue = (ch.entrySize > ch.rawContentSize) ? ch.entrySize : ch.rawContentSize;
           sizeValue = sizeValue > 0 ? sizeValue : 0
-          console.log('entry: ', ch.entrySize, 'rawContent:', ch.rawContentSize, '' )
+
           //evaluate content-type
           if (packageName === "all" || packageName === ch.type) {
             //compute chilren stats
@@ -107,6 +125,7 @@
             csTotalSend = +csTotalSend + Number(ch.send);
             csTotalReceive = +csTotalReceive + Number(ch.receive);
             csTotalWait = +csTotalWait + Number(ch.wait);
+            csStatusCount = +csStatusCount + getStatusCount(ch.status);
 
             if (ch.type === "script" || ch.type === "xhr") {
               csNumOfRequests++;
@@ -125,6 +144,10 @@
         global: globalArr,
         children: childrenArr,
         globalStats: {
+          onLoad: +onLoad > 0 ? formatTime(onLoad) : 'N/A',
+          domContentLoaded: +domContentLoaded > 0 ? formatTime(domContentLoaded) : 'N/A',          
+          rawOnLoad: +onLoad,
+          rawDomContentLoaded: +domContentLoaded,
           totalSize: formatBytes(glTotalSize, 2),
           totalTime: formatTime(glTotalTime),
           avgReqSize: formatBytes(glTotalSize / globalArr.length, 2),
@@ -139,6 +162,8 @@
           numOfFont: +typeTable.font || 0,
           numOfImages: +typeTable.image || 0,
           numOfOther: +typeTable.other || 0,
+          numOfStatusOtherThan200: glStatusCount,
+          statusTable: statusTable,
           nonExpiredHeaders: null
         },
         childrenStats: {
@@ -155,35 +180,38 @@
           avgSend: +csTotalSend / +childrenArr.length || 0,
           avgReceive: +csTotalReceive / +childrenArr.length || 0,
           avgWait: +csTotalWait / +childrenArr.length || 0,
+          numStatusOtherThan200: csStatusCount,
           nonExpiredHeaders: null
         }
       }; //end of global
       return global;
     } //end of function
-
+    function getStatusCount(status) {
+      if(status !== 200) return 1;
+      return 0;
+    }
+    function getStatus(status) {
+      if (status || status > 0) return +status;
+      return "N/A"
+    };    
     function getSize(status, hSize, bSize) {
-      console.log(hSize, bSize)
       if (status === 304) return +hSize;
-      if (!hSize && !bSize) {
-        return Number(hSize) + Number(bSize);
-      } else {
-        return 0;
-      }
+      return Number(hSize) + Number(bSize);
     };    
     function getLatency(time, receive) {
       if (+time > 0 || receive !== undefined) return +time - +receive;
       return 0;
     };
-    function getSend(timings) {
-      if (timings && timings.send !== undefined) return +timings.send;
+    function getSend(send) {
+      if (send !== undefined) return +send;
       return 0;
     };    
-    function getReceive(timings) {
-      if (timings && timings.receive !== undefined) return +timings.receive;
+    function getReceive(receive) {
+      if (receive !== undefined) return +receive;
       return 0;
     };
-    function getWait(timings) {
-      if (timings && timings.wait !== undefined) return +timings.wait;
+    function getWait(wait) {
+      if (wait !== undefined) return +wait;
       return 0;
     };
     function getEndTime(startedTime, time) {

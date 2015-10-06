@@ -47,9 +47,8 @@
         function updateChart(is_resize) {
           tooltip.style("visibility", "hidden");
           var data = $scope.data;
-          console.log(data);
           if(data && data.children.length > 0) {
-            // packing.radius(sizeAccessors.time)
+            // packing.radius()
             // packing.sort(function(a, b) {
             //     return -(b.value - a.value);
             // })
@@ -68,12 +67,18 @@
                   .style("fill", function(d) { return color(d.packageName); })
                   .on("mouseover", function(d) {
                       tooltip.html(
-                        "<a style='color: #e8ca14; ' target='_blank' href=" 
-                        + d.url + ">" + 
-                        d.className +
+                        "<a style='color: #e8ca14; ' target='_blank' href=" + d.url + 
+                        ">" + d.className +
                         "</a>" +                          
                         "<br/>"  + d.packageName +
-                        "<br/>"  + d.contentSize)  
+                        "<br/>"  + d.contentSize +
+                        "<br/>"  + d.time + 
+                        "<span style='color: lightgray;'> (Latency: " + d.latency + 
+                        "</span>)" + 
+                        "<br/><span style='color: lightgray;'>Sent (" + d.send + 
+                        "), Waiting (" + d.wait + 
+                        "), Downloaded (" + d.receive + 
+                        ")</span><br/>"  + d.classNameMs)  
                         .style("left", (d3.event.pageX) + "px")      
                         .style("top", (d3.event.pageY - 28) + "px");
                       tooltip.style("visibility", "visible");

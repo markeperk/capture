@@ -66,20 +66,28 @@
 		<div class="g-stats">
 			<div class="g-main">
 				<div class="g-main-panel">
-					<p>Total Size</p>
+					<p>Transferred</p>
 					<h1>{{data.childrenStats.totalSize | ifEmpty:0}}</h1>
 				</div>
 				<div class="g-main-panel">
-					<p>Total Time</p>
+					<p>Duration</p>
 					<h1>{{data.childrenStats.totalTime | ifEmpty:0}}</h1>
 				</div>
 				<div class="g-main-panel">
-					<p>Avg. Req. Size</p>
+					<p>Avg. Transfer</p>
 					<h1>{{data.childrenStats.avgReqSize | ifEmpty:0}}</h1>
 				</div>
 				<div class="g-main-panel">
-					<p>Avg. Req. Time</p>
+					<p>Avg. Duration</p>
 					<h1>{{data.childrenStats.avgReqTime | ifEmpty:0 }}</h1>
+				</div>
+				<div class="g-main-panel">
+					<p>DOM Cont. Loaded</p>
+					<h1>{{data.globalStats.domContentLoaded | ifEmpty:0}}</h1>
+				</div>
+				<div class="g-main-panel">
+					<p>Load</p>
+					<h1>{{data.globalStats.onLoad | ifEmpty:0 }}</h1>
 				</div>
 				<div class="g-main-panel g-group" ng-show="showContentTypeStats">
 					<p>% Total Size</p>
@@ -93,6 +101,7 @@
 			<div class="g-other">
 				<div class="g-other-panel">
 					<p><strong>{{data.childrenStats.numOfRequests | ifEmpty:0}}</strong> Requests</p>
+					<p><strong>{{data.childrenStats.numStatusOtherThan200 | ifEmpty:0}}</strong> Requests NOT Status "200 OK" </p>
 					<p><strong>{{data.childrenStats.numRequestsByOthers | ifEmpty:0}}</strong> Requests initiated by Requests</p>
 					<p><strong>{{data.childrenStats.nonExpiredHeaders | ifEmpty:'N/A'}}</strong> Non-expiring headers</p>
 					<p><strong>{{data.childrenStats.totalCookies | ifEmpty:0}}</strong> Cookies </p>
@@ -109,14 +118,15 @@
 					<h3>Label Value</h3>
 						<p><a ng-click="setLabelAccessor(accessors.className)">Name </a><i ng-show="labelSelected==='className'" class="fa fa-check" style="color: #2C2C2C; font-size:12px;"></i></p>
 						<p><a ng-click="setLabelAccessor(accessors.className2)">Content-Type </a><i ng-show="labelSelected==='classNameCt'" class="fa fa-check" style="color: #2C2C2C; font-size:12px;"></i></p>
-						<p><a ng-click="setLabelAccessor(accessors.className3)">Content-Size </a><i ng-show="labelSelected==='classNameCs'" class="fa fa-check" style="color: #2C2C2C; font-size:12px;"></i></p>
+						<p><a ng-click="setLabelAccessor(accessors.className3)">Request Size </a><i ng-show="labelSelected==='classNameCs'" class="fa fa-check" style="color: #2C2C2C; font-size:12px;"></i></p>
+						<p><a ng-click="setLabelAccessor(accessors.className4)">Method & Status </a><i ng-show="labelSelected==='classNameMs'" class="fa fa-check" style="color: #2C2C2C; font-size:12px;"></i></p>
 				<div class="filters-selections">
 					<h3>Radius Value</h3>
 						<p><a ng-click="setValueAccessor(accessors.value)">Total Load Time </a><i ng-show="valueAccessor==='time'"class="fa fa-check" style="color: #2C2C2C; font-size:12px;"></i></p>
 						<p><a ng-click="setValueAccessor(accessors.value2)">Content-Size </a><i ng-show="valueAccessor==='rawContentSize'" class="fa fa-check" style="color: #2C2C2C; font-size:12px;"></i></p>
-						<!-- 				<p><a ng-click="setValueAccessor(accessors.value3)">Request Sent (Time)</a><i ng-show="valueAccessor==='semd'"class="fa fa-check" style="color: #2C2C2C; font-size:12px;"></i></p> -->
-						<p><a ng-click="setValueAccessor(accessors.value4)">Request Wait (Time) </a><i ng-show="valueAccessor==='wait'"class="fa fa-check" style="color: #2C2C2C; font-size:12px;"></i></p>
-						<p><a ng-click="setValueAccessor(accessors.value5)">Request Received (Time) </a><i ng-show="valueAccessor==='receive'"class="fa fa-check" style="color: #2C2C2C; font-size:12px;"></i></p>
+						<p><a ng-click="setValueAccessor(accessors.value3)">Request Sent (Time)</a><i ng-show="valueAccessor==='semd'"class="fa fa-check" style="color: #2C2C2C; font-size:12px;"></i></p>
+						<p><a ng-click="setValueAccessor(accessors.value4)">Waiting on Request (Time) </a><i ng-show="valueAccessor==='wait'"class="fa fa-check" style="color: #2C2C2C; font-size:12px;"></i></p>
+						<p><a ng-click="setValueAccessor(accessors.value5)">Content Downloaded (Time) </a><i ng-show="valueAccessor==='receive'"class="fa fa-check" style="color: #2C2C2C; font-size:12px;"></i></p>
 				</div>
 				<div class="filters-selections">
 					<h3>By Content-Type</h3>

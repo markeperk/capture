@@ -10,8 +10,7 @@
 
 		$scope.urlHarRequest = function(url){
 			$scope.showContentTypeStats = false;
-			$scope.loadingMessage = "Building .har file for " + url;
-			console.log($scope.loadingMessage);
+			$scope.loadingMessage = "Your request is on it's way! Constructing .HAR Data for " + url;
 			url = addhttp(url);
 			$scope.loading = dashboardService.urlHarRequest(url).then(function(d) {
 				$scope.showSidebar = true;
@@ -27,7 +26,7 @@
     		if(error) {
     			$scope.showSidebar = false;
 					$scope.data = {children: [{packageName: '', className: '', value: 0}]}
-	      	$scope.loadingMessage = "Invalid URL. Try Again"
+	      	$scope.loadingMessage = "Invalid URL! Please try another URL."
 	        $scope.urlRequest = '';	
 				} 
     	});
@@ -47,13 +46,13 @@
 			} else {
 				$scope.showSidebar = false;
 				$scope.data = {children: [{packageName: '', className: '', value: 0}]}
-				$scope.loadingMessage = "Invalid .har file. Please Try Again."
+				$scope.loadingMessage = "Invalid .HAR File! Please try another"
 			}
     };
  
 	  $scope.pastedHarData = function(data){
 	  	if(validateJSON(data)) {
-	  		$scope.loadingMessage = "Building .har file from pasted JSON";
+	  		$scope.loadingMessage = "Building .HAR Data from your pasted JSON";
 	  		var data = JSON.parse(data)
 				if(data || data.log || data.log.pages.length === 0) { 
 					$scope.url = "unnamed-data.har"
@@ -73,7 +72,7 @@
 	  		$scope.showSidebar = false;
 	  		$scope.url = "";
 	  		$scope.data = {children: [{packageName: '', className: '', value: 0}]};
-	  		$scope.loadingMessage = "Invalid .har data. Please Try Again";
+	  		$scope.loadingMessage = "Invalid .HAR data. Please make sure it's proper .HAR formatted JSON";
 	  	}
 	  }
 
@@ -83,6 +82,7 @@
 			className: function(d) { return d.className; },
 			className2: function(d) { return d.classNameCt; },
 			className3: function(d) { return d.classNameCs; },
+			className4: function(d) { return d.classNameMs; },
 			value: "time", value2: "rawContentSize", value3: "send", value4: "wait", value5: "receive",
 			packageName: "all", packageName2: "document", packageName3: "script", packageName4: "xhr", packageName5: "css", packageName6: "font", packageName7: "image", packageName8: "other"
 		};
@@ -100,7 +100,6 @@
 			$scope.labelSelected = labelValue;
 			$scope.labelAccessor = labelFn;
 		};
-			console.log($scope.labelSelected)
 
 	  $scope.setValueAccessor = function(valueStr) {
 			$scope.valueAccessor = valueStr;

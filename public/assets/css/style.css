@@ -3,7 +3,7 @@ html, body {
   height: 100%;
   font-family: "adelle-sans", sans-serif;
 	margin: 0px;
-	background-color: #D9D9D9;
+	background-color: #F2F2F2;
 }
 
 /*body {
@@ -248,8 +248,8 @@ input[type="file"] {
 }
 .g-main-panel {
 	align-self: flex-start;
-	background-color: #2C2C2C;
-	color: #e8ca14;
+	background-color: rgba(44, 44, 44, .8);
+	color: rgba(232, 202, 20, .9);
 	width: 44%;
 	height: 50px;
 	margin: 2%;
@@ -329,16 +329,14 @@ input[type="file"] {
 .loading-message {
 	width: 100%;
 	height: 30px;
-	margin: 0px auto;
+	margin: 5px auto;
+	padding-top: 5px;
 	text-align: center;
 }
 .loading-message p {
 	font-size: 18px;
 	font-weight: 500;
 	color: #2C2C2C;
-	border-bottom: 2px solid #e8ca14;
-	display:inline; 
-
 }
 .inner-bubble-display {
 	width: 100%;
@@ -359,7 +357,7 @@ input[type="file"] {
 	height: 100%;
 }
 .code-view pre{
-	background-color: #D9D9D9;
+	background-color: background-color: #F2F2F2;
 	font-size: 11px;
 	border: none;
 }
