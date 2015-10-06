@@ -2,7 +2,7 @@
 var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
-var port = 8080;
+var port = 80;
 
 //Server-Side Controllers
 var urlHarController = require('./api/Controllers/UrlHarController');
