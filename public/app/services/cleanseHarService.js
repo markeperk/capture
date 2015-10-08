@@ -57,6 +57,36 @@
           // ch.connect = d.timings.connect && d.timings.connect !== -1 ? +d.timings.connect :0;
           // ch.ssl = d.timings.ssl && d.timings.ssl !== -1 ? +d.timings.ssl :0;
           
+
+          //boolean validator on 3rd party requests..response content vs original url vs parsed urls
+          // d.response.content.text ? var text = d.response.content.text : ''
+          //full url
+          // if ()
+
+          // //url without query
+
+          // var urlTest = 
+
+          //url without query and http://
+
+
+
+
+
+          //url query only
+
+
+
+
+
+
+
+
+
+
+
+
+
           //count the content-type of each child
           if(!typeTable[ch.type]) {
             typeTable[ch.type] = 1;
@@ -274,6 +304,33 @@
       var name = (str.substring(str.lastIndexOf('/') + 1, str.length)).trim()
       return name;
     }
+    function parseUri (str) {
+      var o   = parseUri.options,
+        m   = o.parser[o.strictMode ? "strict" : "loose"].exec(str),
+        uri = {},
+        i   = 14;
+
+      while (i--) uri[o.key[i]] = m[i] || "";
+
+      uri[o.q.name] = {};
+      uri[o.key[12]].replace(o.q.parser, function ($0, $1, $2) {
+        if ($1) uri[o.q.name][$1] = $2;
+      });
+
+      return uri;
+    };
+    parseUri.options = {
+      strictMode: false,
+      key: ["source","protocol","authority","userInfo","user","password","host","port","relative","path","directory","file","query","anchor"],
+      q:   {
+        name:   "queryKey",
+        parser: /(?:^|&)([^&=]*)=?([^&]*)/g
+      },
+      parser: {
+        strict: /^(?:([^:\/?#]+):)?(?:\/\/((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?))?((((?:[^?#\/]*\/)*)([^?#]*))(?:\?([^#]*))?(?:#(.*))?)/,
+        loose:  /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/
+      }
+    };
   });
 })(); 
 
