@@ -58,34 +58,12 @@
           // ch.ssl = d.timings.ssl && d.timings.ssl !== -1 ? +d.timings.ssl :0;
           
 
-          //boolean validator on 3rd party requests..response content vs original url vs parsed urls
-          // d.response.content.text ? var text = d.response.content.text : ''
-          //full url
-          // if ()
-
-          // //url without query
-
-          // var urlTest = 
-
-          //url without query and http://
-
-
-
-
-
-          //url query only
-
-
-
-
-
-
-
-
-
-
-
-
+          //FOR LATER: boolean validator on 3rd party requests..response content vs original url vs parsed urls
+              // d.response.content.text ? var text = d.response.content.text : ''
+            //full url
+            //url without query
+            //url without query and http:/
+            //url query only
 
           //count the content-type of each child
           if(!typeTable[ch.type]) {
