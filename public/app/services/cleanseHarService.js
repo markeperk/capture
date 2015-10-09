@@ -10,6 +10,7 @@
     };
 
     function extractData(harData) {
+      console.log(harData)
       var packageName = harData.packageName,
           className = harData.className,
           value = harData.value,
@@ -59,8 +60,27 @@
           
 
           //FOR LATER: boolean validator on 3rd party requests..response content vs original url vs parsed urls
-              // d.response.content.text ? var text = d.response.content.text : ''
-            //full url
+            // var text = "";
+            // d.response.content.text ? text = d.response.content.text : '';
+            // //full url
+            // var pu = parseUri(ch.url)
+            // console.log('url ', ch.url, 'parsed ', pu)
+
+            // if(pu.source.search(text) === -1) {
+            //   console.log("source not there")
+            // } else {
+            //   console.log("source: ", pu.source.search(text))
+            // }
+            // if(pu.path.search(text) === -1) {
+            //   console.log("path not there")
+            // } else {
+            //   console.log("path: ", pu.path.search(text))
+            // }
+            // if(pu.relative.search(text) === -1) {
+            //   console.log("relative not there")
+            // } else {
+            //   console.log("rel: ", pu.relative.search(text))
+            // }
             //url without query
             //url without query and http:/
             //url query only
@@ -294,7 +314,6 @@
       uri[o.key[12]].replace(o.q.parser, function ($0, $1, $2) {
         if ($1) uri[o.q.name][$1] = $2;
       });
-
       return uri;
     };
     parseUri.options = {

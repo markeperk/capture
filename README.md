@@ -2,8 +2,11 @@
 # capture
 
 To run:
+
 Clone repo
+
 Install Node:
+
 http://howtonode.org/how-to-install-nodejs
 
 NPM install dependencies
