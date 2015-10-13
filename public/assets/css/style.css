@@ -60,7 +60,10 @@ html, body {
 	width: 190px;
 	margin: 0;
 	padding: 0;
-	background-image: url("../../assets/images/logo-observepoint-desktop.png")
+	color: #e8ca14;
+	font-size: 30px;
+	font-family: orbitron;
+	/*background-image: url("../../assets/images/logo-observepoint-desktop.png")*/
 }
 .menu-right {
 	flex-grow: 1;
